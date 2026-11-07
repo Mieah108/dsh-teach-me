@@ -24,3 +24,4 @@
 | 0018 | [档案快照是可丢弃派生缓存](0018-archive-snapshots-are-derived-caches.md) | 已接受；不承诺性能指标 |
 | 0019 | [教学集合拥有独立学习历史](0019-collections-own-learning-history.md) | 已接受；0.8.5-beta.1 实施 |
 | 0020 | [会话教学偏好跟随会话保存](0020-session-preferences-belong-to-the-session.md) | 已接受；0.8.5-beta.1 实施 |
+| 0021 | [首次安装的欢迎页只出现一次](0021-first-run-welcome.md) | 已接受；随下一个测试版发布 |

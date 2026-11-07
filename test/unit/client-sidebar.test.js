@@ -191,3 +191,18 @@ test('教学设置与预设共用官方控制行，已开始会话保留顶栏�
   assert.equal(typeof hero.callRpc, 'function')
   assert.equal(entries[1].definition.inject('session-1').placement, 'active')
 })
+
+test('欢迎页挂在宿主的 root 级浮层槽上，读的仍是设置行那一份配置', async () => {
+  const api = await loadClient()
+  const { ctx, slots } = mount()
+  api.apply(ctx)
+  const [welcome] = slots.filter((slot) => slot.definition.name === 'shell.overlay')
+  assert.ok(welcome !== undefined, '缺 shell.overlay 注册：欢迎页永远不会出现')
+  assert.equal(welcome.definition.id, 'teach-me-welcome', '用独立 id 加一条，不替换宿主已有的浮层项')
+  assert.equal(welcome.definition.locale, 'settings.teachMe', '文案跟设置页共用一个命名空间')
+  assert.equal(welcome.component, api.TeachWelcome)
+  // 注入面与设置页同源：同一个 configForms 表单 + 同一个写入口。
+  const face = welcome.definition.inject()
+  assert.ok(face.hooks.config !== undefined)
+  assert.equal(typeof face.write, 'function')
+})

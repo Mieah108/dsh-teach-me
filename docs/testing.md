@@ -38,7 +38,7 @@ node scripts/check-release.mjs
 
 在一次性测试工作区与明确授权的工程中检查：
 
-1. 冷启动发现 host 行与客户端；设置页可见、修改后重启读取，默认动画关闭。
+1. 冷启动发现 host 行与客户端；设置页可见、修改后重启读取，默认动画关闭。首次打开会出现一次欢迎页：内容完整、只弹一次，关掉后刷新与换浏览器都不再出现，设置页的「重新显示欢迎页」能把它叫回来。
 2. 新会话选教学模式；确认模型可直接调用 `teach_stage` 等原生工具。诊断题处于候答时，读查和 commit 演练可用，正式 commit 被拦截。回答后完成 lint → commit → `teach_lesson_open`，题目挂点与登记一致。回执带计划时直接调用 `sidebar_open`，缺少工具时从选课页打开。
 3. 侧栏选课、单题/多选/文本提交、刷新状态、过期票与课程改版，正式作答和待批改状态符合预期。
 4. 离线阅读与答案导出/导入，重复导入不重复记分；媒体显示、大小边界与离线资源完整。
@@ -66,3 +66,9 @@ node scripts/check-release.mjs
 - `test/unit/learning-*.test.js`、`teaching-*.test.js`：集合版本隔离、迁移备份、旧证据、进度归并、会话默认快照、请求固定值、弹性核查预算与保守复查。
 
 实测范围、兼容性和未执行的模型调用见 [实施验证记录](reports/2026-11-05-learning-extension-validation.md)。
+
+## 首次安装欢迎页
+
+- `node scripts/qa-host-ui.mjs --only welcome --widths 1440,390 --theme both`：正文在明暗与窄屏下的排版（眉行、导语、一次性说明、三步、两处设置与动画说明）。外壳是宿主 `Modal`，bench 不渲染它。
+- `test/unit/client-welcome.test.js`、`test/unit/config-welcome.test.js`：判定真值表、写回与浏览器兜底、`welcome.seen` 的 volatile 契约。
+- 真实宿主另验三件 bench 覆盖不到的事：弹层宽度覆盖（`min(520px, calc(100vw - 24px))`）、Esc 关闭与主按钮自动聚焦；以及「关掉后刷新、换浏览器、重启宿主都不再出现」。

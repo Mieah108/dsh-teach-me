@@ -78,3 +78,13 @@ body {
 
 /* 新会话顶部控制行；弹层通过宿主 portal 进入 body，不拉伸按钮锚点。 */
 .qa-page--dock{align-items:flex-start;justify-content:center;padding:180px 16px 0}.qa-hero-row{display:flex;align-items:center;gap:8px;width:min(760px,100%)}.qa-preset-label{font-size:13px;white-space:nowrap;color:var(--dsw-alias-label-primary)}.qa-hero-row>#qa-root{display:inline-flex;min-width:0}
+
+/* ---- 欢迎页：宿主弹层正文的宽度语境（520 / 380 宽），不画弹层外壳 ---- */
+.qa-page--modal {
+	justify-content: center;
+	padding: 48px 16px;
+}
+
+.qa-modal-col {
+	width: min(520px, 100%);
+}

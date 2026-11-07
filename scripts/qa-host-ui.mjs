@@ -68,7 +68,7 @@ const EXPECTED_TOKENS = {
 
 function usage() {
 	return [
-		"用法: node scripts/qa-host-ui.mjs [--out <dir>] [--only settings|courses|classroom[,..]]",
+		"用法: node scripts/qa-host-ui.mjs [--out <dir>] [--only settings|welcome|courses|classroom[,..]]",
 		"                                  [--theme light|dark|both] [--widths 1440,768,390]",
 		"",
 		"  --out     输出目录，默认 artifacts/host-ui/current（AFTER 轮次传 artifacts/host-ui/after）",
@@ -592,7 +592,7 @@ async function main() {
 							state: state.id,
 							theme,
 							width,
-							paneWidth: ["settings", "dock"].includes(surfaceId) ? null : await page.evaluate(() => Number(document.querySelector(".qa-sidebar-pane").dataset.qaPaneWidth)),
+							paneWidth: ["settings", "dock", "welcome"].includes(surfaceId) ? null : await page.evaluate(() => Number(document.querySelector(".qa-sidebar-pane").dataset.qaPaneWidth)),
 							file: path.relative(ROOT, file),
 							bytes: buffer.length,
 							png: size,

@@ -60,11 +60,17 @@ function applyTheme() {
 /** 宿主语境的页面壳：设置页给 720px 内容列，侧栏面给贴右的整屏面板。 */
 function buildShell(surface) {
 	const page = document.createElement("div");
-	page.className = "qa-page qa-page--" + (surface === "settings" ? "settings" : "sidebar");
+	page.className = "qa-page qa-page--" + (surface === "settings" ? "settings" : surface === "welcome" ? "modal" : "sidebar");
 	page.dataset.qaSurface = surface;
 	const root = document.createElement("div");
 	root.id = "qa-root";
-	if (surface === "dock") {
+	if (surface === "welcome") {
+		// 弹层正文的宽度语境：宿主弹层是 380–520px 的纸面，bench 给同宽的列，不画外壳。
+		const column = document.createElement("div");
+		column.className = "qa-modal-col";
+		column.appendChild(root);
+		page.appendChild(column);
+	} else if (surface === "dock") {
         page.className = "qa-page qa-page--dock";
         const row = document.createElement("div"); row.className = "qa-hero-row";
         const preset = document.createElement("span"); preset.textContent = "教学模式"; preset.className = "qa-preset-label";
@@ -197,6 +203,7 @@ function captureHostRegistrations(clientExports) {
 		components: {
 			dock: clientExports.TeachingDock,
             settings: clientExports.TeachSettingsSection || pick((descriptor) => descriptor.name === "settings.section"),
+            welcome: clientExports.TeachWelcomeBody,
 			courses: clientExports.CoursesTab || pick((descriptor) => descriptor.name === "sidebar.right.pane.tab" && descriptor.key === "dsh-teach-me/courses"),
 			classroom: clientExports.ClassroomTab || pick((descriptor) => descriptor.name === "sidebar.right.pane.tab" && descriptor.key === "dsh-teach-me")
 		}
@@ -221,6 +228,8 @@ function describeSurface(surface, state, host) {
 			}
 		};
 	}
+	// 欢迎页只画正文：弹层外壳（portal、焦点陷阱、Esc）是宿主 Modal 的事，bench 不重复实现。
+	if (surface === "welcome") return { component: components.welcome, props: { t } };
 	if (surface === "dock") return { component: components.dock, props: { t, sessionId: SESSION_ID, session: { projectionValues: { agentPreset: "teach" } }, callRpc } };
 	if (surface === "courses") {
 		return {

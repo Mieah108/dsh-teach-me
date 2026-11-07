@@ -328,6 +328,28 @@ window.__ModuleLoader__.load({
 			ledgerPendingOf: "其中待批改 {count}",
 			ledgerNoAnswer: "尚未作答",
 			ledgerAssessment: "最近评估：",
+			// ——首次安装的欢迎页（只出现一次）——
+			welcomeKicker: "教学模式 · 首次使用",
+			welcomeTitle: "欢迎使用教学模式",
+			welcomeLede: "一个学习目标，一节课：先诊断你的起点，再讲清楚，最后让你自己作答。",
+			welcomeOnce: "这一页只会出现一次。关掉后不再出现；想再看，到设置页点「重新显示欢迎页」。",
+			welcomeStep1: "选预设",
+			welcomeStep1Body: "新建会话时，在输入框那一行的预设选择器里选「教学模式」。",
+			welcomeStep2: "说要学什么",
+			welcomeStep2Body: "给出目标、当前基础和想用的材料；先答诊断题，再确认小课计划。",
+			welcomeStep3: "到课堂里读和答",
+			welcomeStep3Body: "侧栏「教学模式 · 选课」打开课程；页面自测与「提交到课堂」是两回事。",
+			welcomeSettingsTitle: "另外两处设置",
+			welcomeSessionSettings: "「教学设置」按钮：与预设选择器同排，改当前会话的核查等级与讲解深度。",
+			welcomeSettingsPage: "「设置 → 教学模式」：新会话的默认值，以及动画工程目录。",
+			welcomeAnimationTitle: "教学动画（可选）",
+			welcomeAnimationBody: "默认不做动画。要做，先在设置页填 Remotion 工程的绝对路径。",
+			welcomeAnimationBody2: "插件只在这个目录里读写；填好后先提案，你同意才写代码和渲染，参考线 120 秒。",
+			welcomeStart: "开始使用",
+			welcomeClose: "关闭",
+			welcomeSection: "欢迎页",
+			welcomeReopen: "重新显示欢迎页",
+			welcomeReopenHint: "第一次安装后显示一次；关掉后不再出现。",
 			classroomFailedNext: "重新打开，或者回选课换一节。",
 			"verdict.passed": "通过",
 			"verdict.failed": "未通过",
@@ -487,6 +509,28 @@ window.__ModuleLoader__.load({
 			ledgerPendingOf: "{count} of them awaiting grading",
 			ledgerNoAnswer: "Nothing answered yet",
 			ledgerAssessment: "latest assessment: ",
+			// ——first-run welcome page (shown once)——
+			welcomeKicker: "Teaching mode · first run",
+			welcomeTitle: "Welcome to Teaching mode",
+			welcomeLede: "One learning goal, one lesson: diagnose where you start, explain it clearly, then let you answer.",
+			welcomeOnce: "This page appears only once. Close it and it will not come back; to see it again, use “Show the welcome page” in the settings page.",
+			welcomeStep1: "Pick the preset",
+			welcomeStep1Body: "When you start a session, choose “Teaching mode” in the preset selector on the composer row.",
+			welcomeStep2: "Say what you want to learn",
+			welcomeStep2Body: "Give the goal, your background and any material; answer the diagnostic questions, then confirm the plan.",
+			welcomeStep3: "Read and answer in the classroom",
+			welcomeStep3Body: "Open lessons from the sidebar under “Teaching mode · Lessons”; the page self-check and “Submit to classroom” are separate.",
+			welcomeSettingsTitle: "Two more places to look",
+			welcomeSessionSettings: "The “Teaching settings” button next to the preset selector: fact checking and explanation depth for this session.",
+			welcomeSettingsPage: "Settings → Teaching mode: defaults for new sessions, and the animation project directory.",
+			welcomeAnimationTitle: "Teaching animation (optional)",
+			welcomeAnimationBody: "Animation is off by default. To use it, set the absolute path of your Remotion project in the settings page.",
+			welcomeAnimationBody2: "The plugin only reads and writes inside that directory; the tutor proposes a storyboard first, and code plus rendering follow only after you agree. Length guide: 120 seconds.",
+			welcomeStart: "Get started",
+			welcomeClose: "Close",
+			welcomeSection: "Welcome page",
+			welcomeReopen: "Show the welcome page",
+			welcomeReopenHint: "Shown once after install. Closing it hides it for good.",
 			classroomFailedNext: "Reopen it, or go back to the lesson list.",
 			"verdict.passed": "Passed",
 			"verdict.failed": "Failed",
@@ -669,6 +713,36 @@ window.__ModuleLoader__.load({
 }
 @media (prefers-reduced-motion:reduce){
   .tsm-control,.tsm-btn{transition:none}
+}
+
+/* ——首次安装欢迎页—— */
+/* 宿主弹层默认宽 min(380px,100%)：欢迎页要放三段说明，放宽到 520。
+   双类选择器只为压过宿主弹层自己的单类 width，不是新的一层主题。 */
+.tsm-welcome-modal.tsm-welcome-modal{width:min(520px,calc(100vw - 24px));max-height:min(88vh,760px)}
+/* 正文自己滚：宿主弹层是 overflow:hidden，短屏下不滚就会被裁掉。 */
+.tsm-surface.tsm-welcome{display:flex;flex-direction:column;gap:16px;max-height:min(74vh,640px);overflow-y:auto;overscroll-behavior:contain}
+.tsm-welcome-kicker{display:flex;align-items:center;gap:6px;font-size:var(--tsm-12);line-height:var(--tsm-12-lh);letter-spacing:.06em;color:var(--dsw-alias-label-secondary)}
+.tsm-welcome-lede{font-size:var(--tsm-14);line-height:1.7;text-wrap:pretty;color:var(--dsw-alias-label-primary)}
+/* 「只出现一次」是一句承诺，不是脚注：给一条竖线，位置紧跟导语。 */
+.tsm-welcome-once{padding-left:10px;border-left:2px solid var(--dsw-alias-border-l3);font-size:var(--tsm-12);line-height:var(--tsm-12-lh);text-wrap:pretty;color:var(--dsw-alias-label-secondary)}
+.tsm-welcome-steps{display:flex;flex-direction:column;gap:12px}
+.tsm-welcome-step{display:flex;align-items:flex-start;gap:10px}
+.tsm-welcome-stepnum{flex:0 0 auto;width:20px;height:20px;border:1px solid var(--dsw-alias-border-l3);border-radius:50%;font-size:var(--tsm-12);line-height:18px;font-variant-numeric:tabular-nums;text-align:center;color:var(--dsw-alias-label-secondary)}
+.tsm-welcome-steptext{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tsm-welcome-stepname{font-size:var(--tsm-13);line-height:var(--tsm-13-lh);font-weight:600;color:var(--dsw-alias-label-primary)}
+.tsm-welcome-stepbody{font-size:var(--tsm-13);line-height:1.6;text-wrap:pretty;color:var(--dsw-alias-label-secondary)}
+.tsm-welcome-group{display:flex;flex-direction:column;gap:6px;padding-top:14px;border-top:.5px solid var(--dsw-alias-border-l2)}
+.tsm-welcome-groupname{font-size:var(--tsm-13);line-height:var(--tsm-13-lh);font-weight:600;color:var(--dsw-alias-label-primary)}
+.tsm-welcome-line{font-size:var(--tsm-12);line-height:1.65;text-wrap:pretty;color:var(--dsw-alias-label-secondary)}
+/* 窄于 420：弹层在手机上只剩 ~360，靠收紧纵向节奏把整页留在一屏内，而不是先让人滚动。 */
+@container (max-width:420px){
+  .tsm-welcome-steps{gap:10px}
+  .tsm-welcome-group{padding-top:10px;gap:4px}
+  .tsm-welcome-lede{font-size:var(--tsm-13);line-height:1.65}
+}
+@container (max-width:360px){
+  .tsm-welcome-step{gap:8px}
+  .tsm-welcome-stepnum{width:18px;height:18px;line-height:16px}
 }`;
 		//endregion
 
@@ -767,6 +841,141 @@ window.__ModuleLoader__.load({
 			);
 		}
 
+		//region 首次安装的欢迎页
+		/**
+		 * 「已看过」的浏览器兜底标记。
+		 *
+		 * 主记录在 profile 设置行的 `welcome.seen` 上（换浏览器也不会再弹）。这里只在一种情况下用：
+		 * 宿主把这次写入拒了（只读 profile、接口超时、离线）。没有它，写不进去时欢迎页会在
+		 * 每次刷新后再来一遍——那正是最招人烦的「只出现一次」。
+		 * 拿不到 localStorage（隐私模式、沙箱、非浏览器）就当成没有标记，不抛错、不降级成别的东西。
+		 */
+		const WELCOME_MARK_KEY = "dsh-teach-me:welcome";
+
+		function welcomeMarkStore() {
+			try {
+				const store = typeof window === "undefined" ? undefined : window.localStorage;
+				return store === undefined || store === null ? null : store;
+			} catch {
+				return null;
+			}
+		}
+
+		function readWelcomeMark() {
+			const store = welcomeMarkStore();
+			if (store === null) return false;
+			try { return store.getItem(WELCOME_MARK_KEY) === "1" } catch { return false }
+		}
+
+		function writeWelcomeMark() {
+			const store = welcomeMarkStore();
+			if (store === null) return;
+			try { store.setItem(WELCOME_MARK_KEY, "1") } catch {}
+		}
+
+		function clearWelcomeMark() {
+			const store = welcomeMarkStore();
+			if (store === null) return;
+			try { store.removeItem(WELCOME_MARK_KEY) } catch {}
+		}
+
+		/**
+		 * 欢迎页此刻该不该出现——唯一判定点，单测只钉这一处真值表和组件接线。
+		 *
+		 * 三条同时成立才出现：配置读到了、这一行可写、还没看过。
+		 * 读不到配置或不可写时都不弹：弹了也没地方记住「已看过」，等于每次刷新都来一遍。
+		 * 只读部署因此没有欢迎页，这是有意的取舍（见 ADR-0021）。
+		 * @param {{ status?: string, writable?: boolean, value?: object } | undefined} snapshot configForms 快照
+		 * @param {boolean} seenLocally 浏览器兜底标记
+		 * @returns {boolean}
+		 */
+		function decideWelcome(snapshot, seenLocally) {
+			if (snapshot === undefined || snapshot === null || snapshot.status !== "ready") return false;
+			if (snapshot.writable !== true) return false;
+			if (seenLocally === true) return false;
+			const value = snapshot.value === null || typeof snapshot.value !== "object" ? {} : snapshot.value;
+			const welcome = value.welcome === null || typeof value.welcome !== "object" ? {} : value.welcome;
+			return welcome.seen !== true;
+		}
+
+		/**
+		 * 欢迎页正文：纯内容，不碰配置。
+		 *
+		 * 弹层外壳（portal、焦点陷阱、Esc）交给宿主 `Modal`，这里不造第二套；
+		 * bench 与单测渲染的也是这一块，所以它必须能单独挂载。
+		 */
+		function TeachWelcomeBody({ t }) {
+			const step = (index, name, body) => react.createElement("li", { key: "step-" + index, className: "tsm-welcome-step" }, [
+				react.createElement("span", { key: "num", className: "tsm-welcome-stepnum", "aria-hidden": "true" }, String(index)),
+				react.createElement("span", { key: "text", className: "tsm-welcome-steptext" }, [
+					react.createElement("span", { key: "name", className: "tsm-welcome-stepname" }, name),
+					react.createElement("span", { key: "body", className: "tsm-welcome-stepbody" }, body)
+				])
+			]);
+			const group = (key, title, lines) => react.createElement("div", { key: key, className: "tsm-welcome-group" }, [
+				react.createElement("h3", { key: "name", className: "tsm-welcome-groupname" }, title),
+				...lines.map((line, index) => react.createElement("p", { key: "line-" + index, className: "tsm-welcome-line" }, line))
+			]);
+			return react.createElement("div", { className: "tsm-surface tsm-welcome" }, [
+				react.createElement("style", { key: "style", dangerouslySetInnerHTML: { __html: SURFACE_CSS } }),
+				react.createElement("p", { key: "kicker", className: "tsm-welcome-kicker" }, [
+					react.createElement(TeachMark, { key: "mark", size: 18, weight: 1.75 }),
+					react.createElement("span", { key: "text" }, t("welcomeKicker"))
+				]),
+				react.createElement("p", { key: "lede", className: "tsm-welcome-lede" }, t("welcomeLede")),
+				react.createElement("p", { key: "once", className: "tsm-welcome-once" }, t("welcomeOnce")),
+				react.createElement("ol", { key: "steps", className: "tsm-welcome-steps" }, [
+					step(1, t("welcomeStep1"), t("welcomeStep1Body")),
+					step(2, t("welcomeStep2"), t("welcomeStep2Body")),
+					step(3, t("welcomeStep3"), t("welcomeStep3Body"))
+				]),
+				group("settings", t("welcomeSettingsTitle"), [t("welcomeSessionSettings"), t("welcomeSettingsPage")]),
+				group("animation", t("welcomeAnimationTitle"), [t("welcomeAnimationBody"), t("welcomeAnimationBody2")])
+			]);
+		}
+
+		/**
+		 * 欢迎页浮层：注册在宿主的 root 级 `shell.overlay` 上，第一次安装后出现一次。
+		 *
+		 * 关闭 = 把 `welcome.seen` 写进 profile 的设置行（volatile，写入不重启插件），此后任何
+		 * 浏览器都不再弹；写回失败时只留浏览器兜底标记，不反复打扰。设置页的「重新显示欢迎页」
+		 * 把同一个字段写回 false，这里跟着重新出现。
+		 */
+		function TeachWelcome(props) {
+			const { t, useConfig, write } = props;
+			const Modal = primitives.Modal;
+			const Button = primitives.Button || "button";
+			const snapshot = typeof useConfig === "function" ? useConfig((state) => state) : undefined;
+			const [closed, setClosed] = react.useState(false);
+			const [seenLocally, setSeenLocally] = react.useState(() => readWelcomeMark());
+			const value = snapshot !== undefined && snapshot !== null && snapshot.value !== null && typeof snapshot.value === "object" ? snapshot.value : {};
+			const welcome = value.welcome !== null && typeof value.welcome === "object" ? value.welcome : {};
+			const seen = welcome.seen === true;
+			// 设置页把它写回 false 之后，弹层要能当场再开一次：判定值一变就把乐观关闭复位。
+			react.useEffect(() => { if (!seen) setClosed(false) }, [seen]);
+			if (Modal === undefined || Modal === null) return null;
+			if (closed) return null;
+			if (!decideWelcome(snapshot, seenLocally)) return null;
+			const dismiss = () => {
+				setClosed(true);
+				const markFallback = () => { writeWelcomeMark(); setSeenLocally(true); };
+				Promise.resolve(typeof write === "function" ? write(["welcome", "seen"], true) : false).then((accepted) => {
+					if (accepted === true) return;
+					markFallback();
+				}, markFallback);
+			};
+			return react.createElement(Modal, {
+				open: true,
+				onClose: dismiss,
+				title: t("welcomeTitle"),
+				closeLabel: t("welcomeClose"),
+				className: "tsm-welcome-modal",
+				children: react.createElement(TeachWelcomeBody, { t }),
+				footer: react.createElement(Button, { variant: "primary", "data-modal-autofocus": true, onClick: dismiss }, t("welcomeStart"))
+			});
+		}
+		//endregion
+
 		/**
 		 * 教学模式设置页：四个字段，改完即写，写的是 profile 里那一行 `teach-settings`。
 		 * 宿主侧 `lib/settings.js` 只暴露 volatile 字段，所以这个页面除了这四个不碰别的。
@@ -832,7 +1041,7 @@ window.__ModuleLoader__.load({
 
 			const setFieldNotice = (field, tone, text) => {
 				// 播报带上字段名，否则「已保存」三个字脱离上下文没有意义。
-				const fields = { root: t("projectRoot"), softLimit: t("softLimit"), missing: t("missing"), staging: t("staging") };
+				const fields = { root: t("projectRoot"), softLimit: t("softLimit"), missing: t("missing"), staging: t("staging"), welcome: t("welcomeSection") };
 				announceText(fields[field] + " · " + text);
 				const pending = timers.current;
 				if (pending[field] !== undefined) {
@@ -1074,6 +1283,27 @@ window.__ModuleLoader__.load({
 							fieldError("softLimit", "teach-me-soft-limit-error")
 						])
 					]),
+					// 欢迎页的一次性说明放在最后：它是「恢复入口」，不是常用开关。
+					// 写回的是欢迎页自己读的同一个字段（welcome.seen），所以点完当场就会再出现一次。
+					react.createElement("div", { key: "welcome", className: "tsm-group" }, [
+						react.createElement("div", { key: "name", className: "tsm-grouphead" }, [
+							react.createElement("h3", { key: "h", className: "tsm-groupname" }, t("welcomeSection")),
+							react.createElement("p", { key: "hint", className: "tsm-hint" }, t("welcomeReopenHint"))
+						]),
+						react.createElement("div", { key: "action", className: "tsm-actions" }, [
+							react.createElement(primitives.Button || "button", {
+								key: "reopen",
+								type: "button",
+								className: "tsm-btn",
+								disabled: !writable,
+								onClick: () => save("welcome", ["welcome", "seen"], false, clearWelcomeMark)
+							}, t("welcomeReopen")),
+							notices.welcome !== undefined && notices.welcome.tone === "saved"
+								? react.createElement("span", { key: "notice", "aria-hidden": "true", className: "tsm-pending" }, notices.welcome.text)
+								: null
+						]),
+						fieldError("welcome", "teach-me-welcome-error")
+					])
 					]
 					: null,
 				react.createElement("p", { key: "announce", role: "status", "aria-live": "polite", className: "tsm-sr" }, announce)
@@ -1827,7 +2057,17 @@ window.__ModuleLoader__.load({
 					id: "teach-me",
 					locale: NS
 				}, TeachSettingsIcon));
+				// 首次安装的欢迎页：挂到宿主的 root 级浮层槽上，位置与页面无关（不绑会话）。
+				// 它自己读同一个 configForms 快照判断要不要出现；宿主不声明 shell.overlay 时
+				// inject 不会回调，等于自动跳过（老宿主上就是没有欢迎页，别的都不受影响）。
+				const welcome = ctx.slots.inject("shell.overlay", () => ctx.slots.register({
+					name: "shell.overlay",
+					id: "teach-me-welcome",
+					locale: NS,
+					inject: face
+				}, TeachWelcome));
 				return () => {
+					welcome();
 					icon();
 					section();
 				};
@@ -1984,6 +2224,16 @@ window.__ModuleLoader__.load({
 		exports.brandMark = TeachMark;
 		exports.copy = { zh: zh, en: en };
 		exports.classroomHelpers = { fill: fill, errorText: classroomErrorText };
+		// 欢迎页：正文单独导出给 bench 渲染；判定与兜底标记导出给单测钉真值表。
+		exports.TeachWelcome = TeachWelcome;
+		exports.TeachWelcomeBody = TeachWelcomeBody;
+		exports.welcomeHelpers = {
+			decide: decideWelcome,
+			markKey: WELCOME_MARK_KEY,
+			readMark: readWelcomeMark,
+			writeMark: writeWelcomeMark,
+			clearMark: clearWelcomeMark
+		};
 		return module.exports;
 	}
 });

@@ -56,12 +56,12 @@ function collect(tree, predicate) {
   return hits
 }
 
-function render(snapshot) {
+function render(snapshot, write) {
   const client = clientExports
   return client.TeachSettingsSection({
     t: (key) => key,
     useConfig: () => snapshot,
-    write: () => Promise.resolve(true)
+    write: write || (() => Promise.resolve(true))
   })
 }
 
@@ -201,4 +201,41 @@ test('范围外的数字在渲染时就标成无效，并把错误挂进说明',
   assert.equal(input.props['aria-describedby'], 'teach-me-soft-limit-hint')
   assert.equal(input.props.min, 10)
   assert.equal(input.props.max, 600)
+})
+
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
+
+test('欢迎页入口：说明写在页面上，点一下把同一个字段写回 false', async () => {
+  await loadClient()
+  const writes = []
+  const removed = []
+  globalThis.window.localStorage = {
+    getItem: () => '1',
+    setItem: () => {},
+    removeItem: (key) => { removed.push(key) }
+  }
+  const tree = render(ready, (path, value) => { writes.push({ path, value }); return Promise.resolve(true) })
+
+  // 说明不能省：没有它，用户会以为欢迎页再也看不到了。
+  assert.equal(collect(tree, (n) => n.type === 'p' && n.children === 'welcomeReopenHint').length, 1)
+  const [reopen] = collect(tree, (n) => n.children === 'welcomeReopen')
+  assert.ok(reopen !== undefined, '缺「重新显示欢迎页」按钮')
+  assert.equal(reopen.type, 'button', '宿主没给 Button 时退回原生按钮，不画一个不能点的东西')
+  assert.equal(reopen.props.className, 'tsm-btn', '动作只用已有的两种形态，不新造控件')
+  assert.equal(reopen.props.disabled, false)
+  // 它不是一个「字段」：不能被当成 tsm-control/tsm-check 混进表单控件统计。
+  assert.doesNotMatch(reopen.props.className, /tsm-(control|check)/)
+
+  reopen.props.onClick()
+  assert.deepEqual(writes, [{ path: ['welcome', 'seen'], value: false }])
+  await flush()
+  assert.deepEqual(removed, ['dsh-teach-me:welcome'], '恢复时也要清掉本浏览器的兜底标记，否则下次还是不显示')
+})
+
+test('欢迎页入口：不可写时禁用，和其它字段同一套规则', async () => {
+  await loadClient()
+  const tree = render({ status: 'ready', writable: false, value: { animation: {} } })
+  const [reopen] = collect(tree, (n) => n.children === 'welcomeReopen')
+  assert.ok(reopen !== undefined)
+  assert.equal(reopen.props.disabled, true)
 })

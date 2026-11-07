@@ -8,7 +8,7 @@
 
 教学预设仍以 `teach` 标识。工具逐项向模型呈现，采用宿主 `standard` 的原生调用方式。教学人格、候答行为和工具范围由教学预设独立配置。
 
-`client.js` 注册设置页、选课列表与课堂页签，使用宿主 `configForms` 和连接服务。没有有效 `teach-settings` 行时不显示空设置页。设置合并顺序为设置页值、预设行值、内置默认；空字符串工程路径表示主动关闭动画。
+`client.js` 注册设置页、选课列表与课堂页签，使用宿主 `configForms` 和连接服务。没有有效 `teach-settings` 行时不显示空设置页。设置合并顺序为设置页值、预设行值、内置默认；空字符串工程路径表示主动关闭动画。另有首次安装的欢迎页：客户端把它注册到宿主 root 级 `shell.overlay`，用宿主 `Modal` 呈现，只在设置行可写且 `welcome.seen` 不为 `true` 时出现一次；关掉即把 `welcome.seen` 写回设置行，此后任何浏览器都不再弹（判定与取舍见 [ADR-0021](adr/0021-first-run-welcome.md)）。
 
 | 配置组 | 重要选项 |
 | --- | --- |
@@ -20,8 +20,9 @@
 | `ledger` | `enabled`，单文件编辑/整课步数参考线，非学习质量评分 |
 | `animation` | 工程根、长度参考线、缺失处理、staging、技能闸门和单帧等待上限 |
 | `workspace` | 可选固定教学根；也可用 `teach_workspace bind` 绑定 |
+| `welcome` | `seen`：首次安装的欢迎页是否已看过；关一次写 `true`，此后不再出现，设置页的「重新显示欢迎页」写回 `false` |
 
-默认值以 `lib/config.js` 为准，页面字段定义在 `lib/config-schema.js`。修改设置后重启插件行或宿主；已创建的会话不会通过重写历史配置自动更换预设。
+默认值以 `lib/config.js` 为准，页面字段定义在 `lib/config-schema.js`。修改设置后重启插件行或宿主（`welcome.seen` 例外：它是 volatile，写入即时生效）；已创建的会话不会通过重写历史配置自动更换预设。
 
 ## 档案与事务
 

@@ -180,6 +180,18 @@ export const SURFACES = {
 			{ id: "invalid-limit", snapshot: SETTINGS_SNAPSHOTS["invalid-limit"], waitFor: {} }
 		]
 	},
+	welcome: {
+		id: "welcome",
+		title: "首次安装欢迎页",
+		/**
+		 * 只渲染弹层正文（`TeachWelcomeBody`）：外壳是宿主的 `Modal`（portal 到 body、
+		 * 焦点陷阱、Esc），bench 不复制宿主组件，所以探针仍然只看 `#qa-root`。
+		 * 宽度由 `--widths` 覆盖；「已看过不显示」「只读不显示」由单测钉住，这里只画内容。
+		 */
+		states: [
+			{ id: "default", waitFor: { selector: ".tsm-welcome" } }
+		]
+	},
 	courses: {
 		id: "courses",
 		title: "选课侧栏",

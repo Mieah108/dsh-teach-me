@@ -9,7 +9,7 @@
 | --- | --- |
 | `fixtures.js` | 状态清单、RPC 回执、文案 key、侧栏面板宽度。Node 侧（runner）和浏览器侧（entry）共用，纯数据、不 import 任何东西。 |
 | `entry.js` | 浏览器入口，esbuild 每次运行重新打包。摆主题/令牌回退/页面壳 → stub `window.__ModuleLoader__` → 加载 `client.js` → 宿主 React 挂载。 |
-| `harness.css` | 页面壳：宿主地面、720px 设置列、430/340/300 侧栏面板、整屏高。只有承载容器，没有产品样式。 |
+| `harness.css` | 页面壳：宿主地面、720px 设置列、520px 弹层正文列、430/340/300 侧栏面板、整屏高。只有承载容器，没有产品样式。 |
 | `lesson-stub.html` | 课堂 iframe 的占位课程页（一个标题 + 三段正文），供 `sandbox` iframe 加载。 |
 
 ## 跑法
@@ -23,6 +23,7 @@ node scripts/qa-host-ui.mjs --out artifacts/host-ui/after
 
 # 收窄范围 / 换宽度
 node scripts/qa-host-ui.mjs --only classroom --theme dark --widths 390
+node scripts/qa-host-ui.mjs --only welcome --theme both --widths 1440,390
 ```
 
 `--out` 默认 `artifacts/host-ui/current`；`--client` 默认仓库根目录的 `client.js`。
@@ -41,6 +42,7 @@ node scripts/qa-host-ui.mjs --only classroom --theme dark --widths 390
 | settings | `readonly` | `writable:false` |
 | settings | `loading` | `status:"loading"` |
 | settings | `invalid-limit` | 已保存的 `softLimitSeconds:601`（越界） |
+| welcome | `default` | 首次安装欢迎页正文（`TeachWelcomeBody`）：眉行 + 导语 + 一次性说明 + 三步 + 两组设置说明；弹层外壳是宿主 Modal，bench 不复制 |
 | courses | `ready` | `openable:true`（catalog 顶层字段，不是单课可用性，界面不读它）；6 课：passed+lastSubmittedAt；failed+`lastVerdictStale`+原因+`unmappedQuestionIds`；100 字长标题无结论；`questionCount:0`；`publishedAt:2026-10-28`+`revision:3` |
 | courses | `no-archive` | `initialized:false`、`lessons:[]` |
 | courses | `empty` | `initialized:true`、`lessons:[]` |
