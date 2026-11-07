@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "file": "upstream/deeptutor-page-planner.yaml",
+      "repository": "https://github.com/HKUDS/DeepTutor",
+      "commit": "a31d82624c27d75f4e771d4fcb78dce16470b383",
+      "path": "deeptutor/book/prompts/zh/page_planner.yaml",
+      "url": "https://github.com/HKUDS/DeepTutor/blob/a31d82624c27d75f4e771d4fcb78dce16470b383/deeptutor/book/prompts/zh/page_planner.yaml",
+      "license": "Apache-2.0",
+      "sha256": "c27ffc58e330734e1c5888fc0df23d8b0b5ccb649a86ac2251b75c8e7d962fff",
+      "bytes": 2990,
+      "modified": false
+    },
+    {
+      "file": "upstream/openmaic-diagram.md",
+      "repository": "https://github.com/THU-MAIC/OpenMAIC",
+      "commit": "75b3d8b61fdfa7491ae5f5b6095d6919145b6418",
+      "path": "packages/@openmaic/generation/templates/diagram-content/system.md",
+      "url": "https://github.com/THU-MAIC/OpenMAIC/blob/75b3d8b61fdfa7491ae5f5b6095d6919145b6418/packages/@openmaic/generation/templates/diagram-content/system.md",
+      "license": "MIT",
+      "sha256": "98d8b2e59eadb17cfee2f9d55188c901efc7f81d27907287de3568cfaf7120e9",
+      "bytes": 5858,
+      "modified": false
+    },
+    {
+      "file": "upstream/openmaic-simulation.md",
+      "repository": "https://github.com/THU-MAIC/OpenMAIC",
+      "commit": "75b3d8b61fdfa7491ae5f5b6095d6919145b6418",
+      "path": "packages/@openmaic/generation/templates/simulation-content/system.md",
+      "url": "https://github.com/THU-MAIC/OpenMAIC/blob/75b3d8b61fdfa7491ae5f5b6095d6919145b6418/packages/@openmaic/generation/templates/simulation-content/system.md",
+      "license": "MIT",
+      "sha256": "5d0fbae09a546f9f65e10605c31b73769816a8e8eb5a3282df13c8199101bf41",
+      "bytes": 11537,
+      "modified": false
+    }
+  ],
+  "adaptations": [
+    {
+      "file": "lesson-composition.md",
+      "sources": [
+        "upstream/deeptutor-page-planner.yaml"
+      ],
+      "changes": "按当前短课目标选择表达；保留过渡与学习动作，移除固定篇幅、块数和Manim绑定"
+    },
+    {
+      "file": "diagram.md",
+      "sources": [
+        "upstream/openmaic-diagram.md"
+      ],
+      "changes": "复用SVG定位/动画分层与连接点范例；使用当前主题、学习者操作和手动答疑状态"
+    },
+    {
+      "file": "simulation.md",
+      "sources": [
+        "upstream/openmaic-simulation.md"
+      ],
+      "changes": "复用变量/预设、运行状态和重置检查；独立本地交互，不依赖平台持续控制"
+    },
+    {
+      "file": "remotion-reuse.md",
+      "sources": [
+        "../ANIMATION.md",
+        "upstream/deeptutor-page-planner.yaml",
+        "upstream/openmaic-diagram.md"
+      ],
+      "changes": "连接现有Remotion工程、规范与按需技能，保留制作确认；不声称上游已有Remotion成品"
+    }
+  ]
+}

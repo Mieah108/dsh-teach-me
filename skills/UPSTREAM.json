@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "skills": {
+    "teach": {
+      "origin": "upstream",
+      "upstream": "https://github.com/mattpocock/skills",
+      "commit": "ad5400b930b297b0c0cb231ff1ffe42a7da666aa",
+      "path": "skills/productivity/teach",
+      "license": "MIT",
+      "files": [
+        {
+          "path": "GLOSSARY-FORMAT.md",
+          "bytes": 2122,
+          "sha256": "9b99859ec28437668130d8f2ce5a342938970f8a1ed4fd38c3eab4f4b5fff210",
+          "gitBlobSha": "fdd7e366ad9760588b28981e42b3d3b561e56aca"
+        },
+        {
+          "path": "LEARNING-RECORD-FORMAT.md",
+          "bytes": 2747,
+          "sha256": "701fa34b6748aa89e6c960ffb815257f481a7d77fb2900f9028f7edf3fdd6052",
+          "gitBlobSha": "953c61422776b47612c3c945920358ad7b5daee7"
+        },
+        {
+          "path": "MISSION-FORMAT.md",
+          "bytes": 1540,
+          "sha256": "8cacbb3c0644d3ae0ea4965564797099401a6930a23f7cf462918576587f2418",
+          "gitBlobSha": "45250bb1bad70988bf381625931df64645e10246"
+        },
+        {
+          "path": "RESOURCES-FORMAT.md",
+          "bytes": 1924,
+          "sha256": "e9cacf34026e11a8d1c8f9de88abe5bcbf654f4ebdb25cae8c0de0d5f48f44ec",
+          "gitBlobSha": "18b588c8b6f96a50ae2352f264928c643d2782e4"
+        },
+        {
+          "path": "SKILL.md",
+          "bytes": 9733,
+          "sha256": "550482c2d674b085c9043b87bfdc14a8f2ec453c736119e7fcbb1e9332bffeba",
+          "gitBlobSha": "493fa3bae0dada971c4dfb965790e56920b1dced"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "bytes": 139,
+          "sha256": "5856f3ae8aec742f1499c640aecdd5f1d6af5fa210a7c6ec794de8263a6f733f",
+          "gitBlobSha": "3452a850e3b0c1f0a3d41b2bfd45164d2d38d7f6"
+        }
+      ]
+    },
+    "teach-animation": {
+      "origin": "project",
+      "license": "BSD-3-Clause",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "bytes": 2744,
+          "sha256": "db020eca9536a4198099856caa2100c63b0610607bbf2da8ec43ef8a55d1aa45"
+        }
+      ]
+    }
+  }
+}

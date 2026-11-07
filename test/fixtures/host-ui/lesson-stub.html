@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>课程页 · 傅里叶变换：从振动到频谱</title>
+<!--
+  课堂 iframe 的占位课程页：真实课堂里这里是被 sandbox 隔离的课程 HTML。
+  只要「不像空白页」：一个标题 + 三段正文。故意只用课程页自己的中性样式，
+  不引用宿主令牌 —— iframe 内外本来就互不共享样式。
+-->
+<style>
+	:root {
+		color-scheme: light;
+	}
+	html,
+	body {
+		margin: 0;
+		padding: 0;
+	}
+	body {
+		padding: 20px 18px 28px;
+		font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+		font-size: 13px;
+		line-height: 22px;
+		color: #1f2328;
+		background: #fff;
+	}
+	h1 {
+		margin: 0 0 10px;
+		font-size: 16px;
+		line-height: 24px;
+		font-weight: 600;
+	}
+	p {
+		margin: 0 0 10px;
+	}
+	.note {
+		color: #57606a;
+		font-size: 12px;
+	}
+</style>
+</head>
+<body>
+<h1>傅里叶变换：从振动到频谱</h1>
+<p>一段声音可以被拆成许多条正弦波：每条正弦波有自己的频率、振幅和相位，把它们叠起来就回到原来的波形。傅里叶变换做的事，就是把「时间上的波形」翻译成「频率上的成分」。</p>
+<p>在工程里我们拿到的是采样后的离散序列，于是用离散傅里叶变换来近似连续频谱。采样率不够时高频会折叠到低频（混叠），观测长度有限时能量会摊到相邻频点（泄漏），这两件事决定了实验该怎么设计。</p>
+<p class="note">这是一张占位课程页，用来说明课堂侧栏里的 iframe 已经装上了一页真实文档；它不是课程内容本身。</p>
+</body>
+</html>

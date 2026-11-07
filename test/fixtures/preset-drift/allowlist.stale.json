@@ -1,0 +1,35 @@
+{
+  "entries": [
+    {
+      "kind": "row",
+      "id": "preset-ptc",
+      "reason": "夹具：预设 id 有意不同"
+    },
+    {
+      "kind": "row",
+      "id": "preset/tool-schedule",
+      "reason": "夹具：工具数预算不补排程工具"
+    },
+    {
+      "kind": "row",
+      "id": "preset-teach",
+      "reason": "夹具：教学预设声明行本身"
+    },
+    {
+      "kind": "row",
+      "id": "preset/delegation/tool-only",
+      "reason": "夹具：包内专有工具行，宿主没有等价物"
+    },
+    {
+      "kind": "key",
+      "id": "preset/persona",
+      "key": "prefix",
+      "reason": "夹具：教学模式人格与编码人格不同"
+    },
+    {
+      "kind": "row",
+      "id": "preset/ghost",
+      "reason": "夹具：这条登记已经不存在的行，必须触发腐烂报错"
+    }
+  ]
+}

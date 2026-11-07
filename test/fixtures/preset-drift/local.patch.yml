@@ -1,0 +1,26 @@
+# 夹具：模拟包内 cordis.patch.yml（与宿主夹具的差异恰好覆盖三分类）
+- insert:
+    - id: preset-teach
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: teach
+        order: 5
+        plugins:
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |
+                你是教学模式导师。
+                第二行。
+          - id: tool-a
+            name: '@deepseek-ai/dsh-tool-a'
+          - id: delegation
+            name: cordis:group
+            group: true
+            config:
+              - id: tool-subagent
+                name: '@deepseek-ai/dsh-tool-subagent'
+                config:
+                  provider: spawn
+              - id: tool-only
+                name: '@local/dsh-tool-only'

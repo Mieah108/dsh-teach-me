@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>读准数据，再比较 · 组件示例</title>
+<link rel="stylesheet" href="../../course.css">
+<link rel="stylesheet" href="../../components/teach-components.css">
+<script src="../../course.js" defer></script>
+<script src="../../components/teach-components.js" defer></script>
+<script src="../../components/teach-charts.js" defer></script>
+</head>
+<body>
+<div class="shell">
+<aside class="sidenav"><p class="label">本课路线</p><nav><ol><li><a href="#recall">先回想</a></li><li><a href="#compare">动手比较</a></li><li><a href="#check">换个情境</a></li></ol></nav><p class="back"><a href="reuse.html">另一课：同一组件，不同内容</a></p></aside>
+<main class="wrap" id="main">
+<header class="course"><p class="eyebrow">组件示例 · 数据比较</p><h1>读准数据，再比较</h1><p class="lede">先确认比较的前提，再改变一个数值，观察结论怎样跟着变化。</p><p class="meta"><span>5 分钟</span><span>无需联网</span><span>图表采用教学用合成数据</span></p></header>
+<div class="goals"><ol><li>区分本例的数值结论与对真实系统的推断。</li><li>修改参数后重新比较，而不是沿用旧结论。</li></ol></div>
+<nav class="toc"><p>本课路线</p><ol><li><a href="#recall">先回想</a></li><li><a href="#compare">动手比较</a></li><li><a href="#check">换个情境</a></li></ol></nav>
+<section id="recall"><h2><span class="num">01</span> 先确认比较的对象</h2><p>只有任务、单位和计时范围一致，两个完成时间才适合直接相减。先回答下面的问题，再翻面核对。</p>
+<div data-teach-component="flashcards" data-teach-context="比较前提的回想"><script type="application/json">{"title":"比较之前，先问两句","cards":[{"front":"A 完成一项任务用 40 毫秒，B 用 70 毫秒。直接比较前，需要确认什么？","back":"确认是相同任务、相同计时范围和相同单位。本例假定这些条件一致。","hint":"数字相同，不代表计量的对象就相同。"},{"front":"当前一次记录中 A 比 B 快，能否推出所有任务都如此？","back":"不能。结论只适用于题目给定的条件，需要更多任务与重复测量才能推广。"}]}</script><p>此处有两张可翻面的回想卡。</p></div>
+<div data-teach-component="timeline" data-teach-context="一次比较的步骤"><script type="application/json">{"title":"把比较过程留在纸面上","events":[{"date":"先预测","title":"写下你预计的结果","description":"先说哪一个用时更短，以及你用的是哪组数。"},{"date":"再修改","title":"只改变 B 的示例用时","description":"其他条件保持题目中的假设不变。"},{"date":"后解释","title":"报告差值与适用范围","description":"说明当前数值支持什么，尚不能说明什么。"}]}</script></div>
+</section>
+<section id="compare"><h2><span class="num">02</span> 改一个数，重新判断</h2><p>A 保持 40 毫秒。把 B 从 70 调到 30，再恢复初始参数：两次判断应该一样吗？图表和数据表来自同一份数据。</p>
+<div data-teach-component="chart" data-teach-context="完成时间参数比较"><script type="application/json">{"title":"完成时间（毫秒，教学用合成数据）","type":"column","data":{"labels":["方案 A","方案 B"],"legends":["完成时间"],"series":[[40,70]]},"controls":[{"label":"方案 B 用时","min":20,"max":100,"step":5,"value":70,"seriesIndex":0,"dataIndex":1}]}</script><p>初始数据：方案 A 为 40 毫秒，方案 B 为 70 毫秒。</p></div>
+<p>如果想追问，可以点击组件下的“复制当前状态”，把你看到的参数和结果贴给导师。页面不会自动提交实验操作。</p>
+</section>
+<section id="check"><h2><span class="num">03</span> 换一个数，检查你的结论</h2><div class="quiz" data-question-id="demo-comparison-1" data-teach-context="换情境自测" data-explain="B 用 30 毫秒、A 用 40 毫秒，所以本例 B 少用 10 毫秒；结论仍受相同任务与计时范围的假设限制。" data-scope="口径：同一任务、同一计时范围，时间均为毫秒。"><p class="q"><span class="tag">自测</span>口径：同一任务，A 用 40 毫秒，B 用 30 毫秒。哪项结论由当前数据直接支持？</p><label><input type="radio" name="demo-q1" value="a"> A 用时更短，而且以后也总是更短。</label><label><input type="radio" name="demo-q1" value="b" data-ok="1"> B 少用 10 毫秒，结论限于本例条件。</label><label><input type="radio" name="demo-q1" value="c"> 两者差 10 毫秒，因此性能永远相同。</label><button type="button">判卷</button><p class="verdict"></p><details data-teach-hint><summary>需要一点提示</summary><p>先把当前两个数相减，再检查题目是否支持“永远”这个范围。</p></details></div></section>
+<footer class="course"><p>卡住时可以把当前状态贴给导师。<a href="reuse.html">另一份示例</a>复用相同组件，只替换内容与数据。</p><p class="source">示例说明：这是可独立使用的组件展示。正式课堂使用时，先发布课程、再登记题目（最后打开课堂），题目 ID 需与档案一致。</p></footer>
+</main></div>
+</body></html>

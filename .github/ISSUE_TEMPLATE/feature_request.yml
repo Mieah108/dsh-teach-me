@@ -1,0 +1,61 @@
+name: 功能建议
+description: 提出改进方向或新能力建议
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        只写「希望更智能」这类无法验收的目标，通常会被退回补场景。提的建议希望可以具体一点。
+
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 学习场景
+      description: 你在学什么、用什么材料、卡在哪一步；有具体例子最好
+      placeholder: "学概率论时，我想在课程页里……"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 希望增加或改变什么
+      description: 写期望的结果，可以是新功能、改进现有功能、增加提示词或模板等
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: 现在怎么绕过
+      description: 当前的做法、模板、命令或手工步骤，可选
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 涉及的部分
+      multiple: true
+      options:
+        - 教学流程与提示词
+        - 课程页与模板
+        - 教学组件（闪卡 / 时间线 / 图表）
+        - 课堂与作答
+        - 学习档案与复习
+        - 离线导出
+        - 教学动画
+        - 设置页
+        - 命令行工具与文档
+        - 其他
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: 范围确认
+      options:
+        - label: 我确认建议不涉及绕过权限围栏、上传真实学习档案或编造使用数据
+          required: true

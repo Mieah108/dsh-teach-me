@@ -1,0 +1,74 @@
+{
+  "sources": [
+    {
+      "repository": "HKUDS/DeepTutor",
+      "commit": "a31d82624c27d75f4e771d4fcb78dce16470b383",
+      "path": "web/app/(workspace)/learning/books/components/blocks/FlashCardsBlock.tsx",
+      "local": "ui/upstream/deeptutor/FlashCardsBlock.tsx",
+      "sha256": "65c7db4397ecd8c75273526c8d7c0436ea4dd3c4035c31a8a7adf0bedb4bff53",
+      "license": "Apache-2.0"
+    },
+    {
+      "repository": "HKUDS/DeepTutor",
+      "commit": "a31d82624c27d75f4e771d4fcb78dce16470b383",
+      "path": "web/app/(workspace)/learning/books/components/blocks/TimelineBlock.tsx",
+      "local": "ui/upstream/deeptutor/TimelineBlock.tsx",
+      "sha256": "364da554e7d53d3d72d077555356e4154901ff53b1da315f79867718b3692341",
+      "license": "Apache-2.0"
+    },
+    {
+      "repository": "HKUDS/DeepTutor",
+      "commit": "a31d82624c27d75f4e771d4fcb78dce16470b383",
+      "path": "LICENSE",
+      "local": "ui/upstream/deeptutor/LICENSE",
+      "sha256": "cd2f54e1e5066644023203dcbd956776a9f4ef6eb8b6225afe1ffa2d380fede4",
+      "license": "Apache-2.0"
+    },
+    {
+      "repository": "THU-MAIC/OpenMAIC",
+      "commit": "75b3d8b61fdfa7491ae5f5b6095d6919145b6418",
+      "path": "packages/@openmaic/renderer/src/elements/chart/chartOption.ts",
+      "local": "ui/upstream/openmaic/chartOption.ts",
+      "sha256": "c7367551374c2f0214bc24be7836773d3c4596b725278ee4cb3c8e0e1e56c426",
+      "license": "MIT"
+    },
+    {
+      "repository": "THU-MAIC/OpenMAIC",
+      "commit": "75b3d8b61fdfa7491ae5f5b6095d6919145b6418",
+      "path": "scripts/build-standalone-player.mjs",
+      "local": "ui/upstream/openmaic/build-standalone-player.mjs",
+      "sha256": "016f88d5752ecdeee0a730cc027d7061418520a7ac96a69cc1ad4c37dccc31c7",
+      "license": "MIT"
+    },
+    {
+      "repository": "THU-MAIC/OpenMAIC",
+      "commit": "75b3d8b61fdfa7491ae5f5b6095d6919145b6418",
+      "path": "LICENSE",
+      "local": "ui/upstream/openmaic/LICENSE",
+      "sha256": "ba252563743227138231604c9138dd400faca5a10c3cf206b466e5466c565a19",
+      "license": "MIT"
+    }
+  ],
+  "adaptations": [
+    {
+      "source": "deeptutor/FlashCardsBlock.tsx",
+      "output": "teach-components.js",
+      "changes": "保留翻面与导航状态；替换应用专属i18n/图标/样式；提示改为主动揭晓；暴露当前可见状态。"
+    },
+    {
+      "source": "deeptutor/TimelineBlock.tsx",
+      "output": "teach-components.js",
+      "changes": "保留事件顺序与可选日期/描述结构；适配现有course.css主题与窄屏。"
+    },
+    {
+      "source": "openmaic/chartOption.ts",
+      "output": "teach-charts.js",
+      "changes": "原件不改；仅剥离TypeScript类型后构建，外层补本地数据验证、控件、主题与销毁。"
+    },
+    {
+      "source": "openmaic/build-standalone-player.mjs",
+      "output": "build-components.mjs",
+      "changes": "复用预构建IIFE和图表独立包方式，移除整套播放器、Tailwind和KaTeX，仅保留选中资产。"
+    }
+  ]
+}

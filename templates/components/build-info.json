@@ -1,0 +1,20 @@
+{
+  "target": "browser ES2020; local IIFE, no runtime imports",
+  "files": {
+    "teach-components.js": {
+      "bytes": 229782,
+      "gzipBytes": 71990,
+      "sha256": "ff6910689411c4b4cf68d12c77a07906893a114faa58f873d2bfd6d6cc30d9c2"
+    },
+    "teach-charts.js": {
+      "bytes": 576381,
+      "gzipBytes": 199554,
+      "sha256": "fc69217c2e4909ff11415237467c74625b083293b4e40dee2383cd4f81736ab0"
+    },
+    "teach-components.css": {
+      "bytes": 5405,
+      "gzipBytes": 1638,
+      "sha256": "743d8ddf42567f82a0dbf5f28bde46822f0037b319b4423c317bbe210b11d6fa"
+    }
+  }
+}

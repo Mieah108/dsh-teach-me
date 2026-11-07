@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>先读横轴，再谈趋势 · 复用示例</title>
+<link rel="stylesheet" href="../../course.css"><link rel="stylesheet" href="../../components/teach-components.css"><script src="../../course.js" defer></script><script src="../../components/teach-components.js" defer></script><script src="../../components/teach-charts.js" defer></script></head>
+<body><div class="shell"><aside class="sidenav"><p class="label">本课路线</p><nav><ol><li><a href="#axis">读图的前提</a></li><li><a href="#trend">检查趋势</a></li></ol></nav><p class="back"><a href="components.html">返回数据比较示例</a></p></aside><main class="wrap" id="main">
+<header class="course"><p class="eyebrow">复用示例 · 规模与工作量</p><h1>先读横轴，再谈趋势</h1><p class="lede">折线连接了三个数，但横向距离的含义仍要看标签。沿用上一课的组件，换一个需要注意的前提。</p><p class="meta"><span>5 分钟</span><span>相同组件，不同内容</span><span>教学用合成数据</span></p></header>
+<div class="goals"><ol><li>判断横轴是连续数值还是离散类别。</li><li>根据标注的规模比较操作次数，而非只看线条形状。</li></ol></div><nav class="toc"><p>本课路线</p><ol><li><a href="#axis">读图的前提</a></li><li><a href="#trend">检查趋势</a></li></ol></nav>
+<section id="axis"><h2><span class="num">01</span> 三等份，不一定是三个等距规模</h2><p>本例把 N=1、N=2、N=4 当作三个类别画在横轴上。相邻标签之间的距离相同，但 N 的增量分别是 1 和 2。</p>
+<div data-teach-component="flashcards" data-teach-context="横轴类型回想"><script type="application/json">{"title":"别让线条替你下结论","cards":[{"front":"横轴上的 N=1、N=2、N=4 等距排列，能否认定 N 每次增加同样多？","back":"不能。这张图使用类别轴，等距只表示相邻类别。N 的增量要从标签读出。","hint":"分别计算 2−1 与 4−2。"},{"front":"示例操作次数为 4、8、16。这三个点满足什么数值关系？","back":"三个点都满足操作次数等于 4N。这只是本例给定数据的关系，不能代替对算法的分析。"}]}</script></div>
+<div data-teach-component="timeline" data-teach-context="读图检查顺序"><script type="application/json">{"title":"读图时的检查顺序","events":[{"date":"第一步","title":"读标签和单位","description":"区分类别轴、连续轴与数值的计量范围。"},{"date":"第二步","title":"回到数据表复算","description":"比较相邻点时，分别检查横轴和纵轴的变化。"},{"date":"第三步","title":"限定结论","description":"描述本例数据，不直接把几组数推广成算法复杂度证明。"}]}</script></div></section>
+<section id="trend"><h2><span class="num">02</span> 用数据核对直觉</h2><div data-teach-component="chart" data-teach-context="规模与操作次数"><script type="application/json">{"title":"三个规模的操作次数（教学用合成数据）","type":"line","data":{"labels":["N=1","N=2","N=4"],"legends":["操作次数"],"series":[[4,8,16]]}}</script><p>N=1、2、4 时，示例操作次数分别为 4、8、16。</p></div>
+<div class="check"><p>换个情境</p><details data-teach-context="读图验收" data-teach-solution><summary>如果类别换成 N=1、N=10、N=100，等距横轴还能代表相同的 N 增量吗？</summary><p>不能。类别间隔与数值间隔是不同的约定。需要比较增长关系时，应回到原始数值，或选择适合问题的数值轴。</p></details></div></section>
+<footer class="course"><p>本页与<a href="components.html">数据比较示例</a>引用完全相同的组件文件，没有重写闪卡、时间线或图表底座。</p></footer>
+</main></div></body></html>

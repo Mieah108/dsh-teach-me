@@ -1,0 +1,80 @@
+/**
+ * Harness page shell — 只模拟宿主的「页面语境」，不含任何针对新设计的样式。
+ *
+ * 三条边界：
+ *   1. 页面地面与面板底色一律取宿主令牌（--dsw-*），和宿主里看到的一致；
+ *   2. 只给承载面一个像样的容器（设置页的 720px 内容列 / 右栏面板的固定宽度、整屏高），
+ *      不画卡片、不画标题栏、不加装饰，避免和新设计抢视觉；
+ *   3. 排版属性（字号、行高、间距、边框）一个都不写，全部来自组件自己的 SURFACE_CSS。
+ * 尺寸：1440 / 768 / 390 视口；面板宽 430 / 340 / 300（见 fixtures.js 的 paneWidthFor）。
+ */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	min-height: 100vh;
+	background: var(--dsw-alias-bg-base);
+	color: var(--dsw-alias-label-primary);
+	font-family: var(--dsw-font-family);
+	-webkit-font-smoothing: antialiased;
+}
+
+/* 页面地面 */
+.qa-page {
+	display: flex;
+	align-items: stretch;
+	min-height: 100vh;
+}
+
+/* ---- 设置面：宿主设置页的内容列，720px ---- */
+.qa-page--settings {
+	justify-content: center;
+}
+
+.qa-settings-col {
+	width: 720px;
+	max-width: calc(100% - 32px);
+	padding: 32px 0 48px;
+}
+
+/* ---- 侧栏面：贴右的宿主侧栏面板，整屏高 ---- */
+.qa-page--sidebar {
+	background: var(--dsw-alias-bg-base);
+}
+
+.qa-sidebar-pane {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	min-height: 100vh;
+	margin-left: auto;
+	background: var(--dsw-specific-sidebar-fill);
+	border-left: 1px solid var(--dsw-alias-border-l1);
+}
+
+/* 宿主里页签内容拿到的是面板的确定高度：这里把这条约束补上，
+   组件自己的 .tsm-pane{height:100%} 才能在整屏面板里铺满。 */
+.qa-sidebar-pane > #qa-root {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.qa-sidebar-pane > #qa-root > .tsm-surface {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+/* 新会话顶部控制行；弹层通过宿主 portal 进入 body，不拉伸按钮锚点。 */
+.qa-page--dock{align-items:flex-start;justify-content:center;padding:180px 16px 0}.qa-hero-row{display:flex;align-items:center;gap:8px;width:min(760px,100%)}.qa-preset-label{font-size:13px;white-space:nowrap;color:var(--dsw-alias-label-primary)}.qa-hero-row>#qa-root{display:inline-flex;min-width:0}

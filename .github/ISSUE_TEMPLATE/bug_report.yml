@@ -1,0 +1,115 @@
+name: 问题反馈
+description: 安装、预设、课堂、档案、动画或设置出现异常时报告
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        只报告**插件与预设本身**的问题。模型回答的质量、个人课程内容与学习效果不在这个模板范围内。
+
+        **不要**贴个人信息、个人路径、真实学习档案、原始会话或未授权图片；日志请先删掉这些内容。
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已在 Issues 与文档里搜索过，没有相同问题
+          required: true
+        - label: 我确认内容不含个人信息、个人学习数据或未授权素材
+          required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 从冷启动开始按顺序写，直到问题出现；能稳定复现最好，如果不能也可以简写当时情况，或提供脱敏后的最小日志片段
+      placeholder: |
+        1. 重启 DeepSeek Harness，新会话选择「教学模式」
+        2. ...
+        3. 出现 ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期行为
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+      description: 报错原文、界面提示或状态；截图可以直接拖进这个框
+    validations:
+      required: true
+
+  - type: input
+    id: dsh-version
+    attributes:
+      label: DeepSeek Harness 版本
+      description: 运行 `dsh --version`
+      placeholder: "0.2.1-rc.3"
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: 教学模式版本
+      description: npm 安装写 `dsh-teach-me@0.9.0-beta.1` 这类版本号；目录安装写 `package.json` 里的 `version`
+      placeholder: "0.9.0-beta.1"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: 安装方式
+      options:
+        - npm：dsh plugin add dsh-teach-me@版本
+        - 本地目录：plugin_manager install_bundle
+        - "link: 安装"
+        - 从源码运行
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 出问题的部分
+      multiple: true
+      options:
+        - 安装、升级与预设发现
+        - 设置页（设置 → 教学模式）
+        - 课程生成与 lesson 工具（compile / lint / patch）
+        - 侧栏选课与课堂页签
+        - 作答、判分与待复核
+        - 学习档案（archive / 学习记录 / 复习）
+        - 离线导出与答案导入
+        - 教学动画生成（Remotion）
+        - 文档与命令行工具
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: 操作系统与客户端
+      description: 系统版本；Web 界面问题请附浏览器版本
+      placeholder: "macOS 15.3 · Chrome 141"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志与额外信息
+      description: 宿主日志或浏览器控制台的报错原文；请先移除个人信息、个人路径与会话内容
+      render: text
+    validations:
+      required: false

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "name": "mathjax",
+  "version": "3.2.2",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/mathjax/MathJax",
+  "packageMetadata": "https://registry.npmjs.org/mathjax/3.2.2",
+  "tarball": "https://registry.npmjs.org/mathjax/-/mathjax-3.2.2.tgz",
+  "tarballIntegrity": "sha512-Bt+SSVU8eBG27zChVewOicYs7Xsdt40qm4+UpHyX7k0/O9NliPc+x77k1/FEsPsjKPZGJvtRZM1vO+geW0OhGw==",
+  "files": [
+    {
+      "path": "tex-svg.js",
+      "upstreamPath": "package/es5/tex-svg.js",
+      "bytes": 2108580,
+      "sha256": "d4295dc33744836935c1399feece5159577b34c5c8ffb9f1c6324cd82e03a882",
+      "modified": false
+    },
+    {
+      "path": "LICENSE",
+      "upstreamPath": "package/LICENSE",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "modified": false
+    }
+  ],
+  "verification": "Official package SHA-512 integrity verified; both distributed originals compared byte-for-byte."
+}

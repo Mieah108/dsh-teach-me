@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "note": "教学模式包把宿主 ptc.patch.yml 的整份 config.plugins 行表抄进 cordis.patch.yml（整份替换、不深合并）。这里逐条登记「有意偏离」，每条都写明为什么该偏离对教学预设是必要的。check-preset-drift.mjs 会做腐烂自检：登记项若不再对应任何真实差异，直接报错。",
+  "entries": [
+    {
+      "kind": "row",
+      "id": "preset-ptc",
+      "reason": "包内对应的预设声明行 id 是 preset-teach：教学模式用自己的预设标识（id=teach）对外暴露，行内容一一对应；改名会让已有学习者档案里的预设引用失效。"
+    },
+    {
+      "kind": "row",
+      "id": "preset/tool-schedule",
+      "reason": "该包会新增 4 个模型可见工具（schedule_create/list/update/delete），每个新工具都计入每轮常驻 schema；教学场景没有排程需求，Q-A1 已裁定不补（工具数预算，见 upgrade-decision §0 第 6 条）。"
+    },
+    {
+      "kind": "row",
+      "id": "preset/tool-plugin-market",
+      "reason": "宿主两代插件市场并存（manager / market），包内只保留 tool-plugin-manager，两行本来都是 disabled；再补 market 只是多一个同名入口、两代命名并存，没有教学收益。"
+    },
+    {
+      "kind": "row",
+      "id": "preset-teach",
+      "reason": "教学预设的声明行本身（id=teach），与宿主 preset-ptc 一一对应；这是本包存在的理由，不是漂移。"
+    },
+    {
+      "kind": "row",
+      "id": "preset/delegation/tool-ralph",
+      "reason": "有意保留：宿主仍能解析 @deepseek-ai/dsh-tool-ralph，disabled 状态不注册工具、不占常驻 schema；保留它与宿主其他预设的能力面一致，删除反而要在宿主演进时反复跟。"
+    },
+    {
+      "kind": "row",
+      "id": "preset/teach-me",
+      "reason": "教学模式运行时插件行（entryRole: runtime）：注册教学工具、注入 teach: 提示词段；宿主 ptc 预设里没有对应概念。"
+    },
+    {
+      "kind": "row",
+      "id": "teach-settings",
+      "reason": "设置页宿主半边（ADR-0007）：只持有配置与只读服务，放在 profile 层而不在预设里；宿主 ptc 没有这一行。"
+    },
+    {
+      "kind": "key",
+      "id": "preset/persona",
+      "key": "prefix",
+      "reason": "教学模式协议人格（导师 + 课程/动画产出约定），是整份预设的核心差异；ptc 的编码人格不适用于教学场景。"
+    },
+    {
+      "kind": "key",
+      "id": "preset/planning/plan-mode",
+      "key": "section",
+      "reason": "宿主本次把措辞改成『until the user approves your plan』，包内仍是旧措辞；两者语义等价，A1 按最小 diff 冻结文案，待 D1 提示词分层时统一对齐（有意冻结，不是能力差异）。"
+    },
+    {
+      "kind": "key",
+      "id": "preset/compaction/compaction-basic",
+      "key": "thresholdRatio",
+      "reason": "教学长课（长 HTML 页面 + 多轮诊断）比编码会话更早触达上下文上限；0.5 让压缩提前发生，避免在诊断中途被迫压缩；宿主默认不设置该键。"
+    },
+    {
+      "kind": "key",
+      "id": "preset/tool-presentation",
+      "key": "mode",
+      "reason": "教学预设采用宿主 standard 的原生工具调用；保留旧选择器供 0.2.1 与 0.2.2 系列共用。"
+    },
+    {
+      "kind": "key",
+      "id": "preset/tool-ask-user",
+      "key": "mode",
+      "reason": "必须是 timed：ask-guard 的候答闸门读宿主 userQuestions 投影里的 active 问题，legacy 是阻塞式、投影里没有 active，闸门会失效（见 0.3.0 审计 R1/R2/R3）。"
+    },
+    {
+      "kind": "key",
+      "id": "preset/tool-ask-user",
+      "key": "timeout",
+      "reason": "教学短问题不需要等两分钟：默认窗口压到 60 秒（仍可由 timeout 参数覆盖）；过长窗口会让『等答案』占掉一节课的步数预算。"
+    },
+    {
+      "kind": "key",
+      "id": "preset/delegation/tool-subagent-list-agents",
+      "key": "disabled",
+      "reason": "0.2.2 起 list_agents 合入根插件且旧子路径不再公开；按公开导出是否存在决定旧行启用，避免整个教学预设加载失败，同时保留旧宿主的独立列表工具。"
+    }
+  ]
+}

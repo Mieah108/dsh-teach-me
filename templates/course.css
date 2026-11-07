@@ -1,0 +1,299 @@
+/* course.css — 课程页共用样式。改这一份，所有课一起变。
+   风格基调：暖纸底、单一强调色、无阴影无圆角、细线分隔（Tufte 式克制）。
+   每个项目只改 :root 里的变量定自己的色与字，下面的结构不动。 */
+
+:root{
+  /* 色 */
+  --paper:#fbf9f4;        /* 纸底 */
+  --paper-2:#f4efe6;      /* 次级底：代码、目录、卡片 */
+  --ink:#16120f;          /* 正文 */
+  --ink-soft:#4a423a;     /* 辅助文字 */
+  --rule:#d8d0c2;         /* 分隔线 */
+  --accent:#9c3524;       /* 强调色（标题序号、引导条、链接下划线） */
+  --accent-2:#7a2a1c;     /* 强调色的深一档（链接文字） */
+  --accent-soft:#f5eae4;  /* 强调底色（提示块） */
+  --good:#2c6a4d;
+  --good-soft:#e6f0e9;
+  --bad:#a3341f;
+  --bad-soft:#f8e6e0;
+  /* 字 */
+  --serif:"方正标雅宋简体","FZYaSongS-R","Songti SC","STSong","SimSun",serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  /* 版式尺度：都可改，改这里不用碰下面的结构 */
+  --measure:46rem;        /* 行宽上限，约 70–80 字符 */
+  --font-size:19px;       /* 正文 */
+  --line-height:1.95;
+  --sidebar:13.5rem;      /* 宽屏侧边目录宽 */
+  --gutter:2.75rem;       /* 目录与正文之间的空隙 */
+  /* 断点 1040px 是媒体查询里的字面量（CSS 变量不能进媒体查询），要改就三处一起改 */
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--serif); font-size:var(--font-size); line-height:var(--line-height);
+  font-feature-settings:"palt" 1;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--measure); margin:0 auto; padding:4.5rem 1.4rem 6rem}
+
+/* ── 键盘与读屏 ───────────────────────────────────────
+   跳转链接平时在视口外，Tab 第一下出现在左上；焦点环统一走朱红，
+   不再混用浏览器默认的蓝色环。 */
+.skip-link{
+  position:fixed; left:1rem; top:-5rem; z-index:100;
+  font-family:var(--mono); font-size:.78rem; letter-spacing:.06em;
+  padding:.6rem .9rem; background:var(--ink); color:var(--paper); border:1px solid var(--ink);
+  text-decoration:none;
+}
+.skip-link:focus{top:1rem; outline:2px solid var(--accent); outline-offset:2px}
+a:focus-visible, summary:focus-visible, .quiz button:focus-visible{
+  outline:2px solid var(--accent); outline-offset:3px;
+}
+/* 浏览器自己的那一层也属于设计系统：选区、下划线位置、数字字宽 */
+::selection{background:var(--accent-soft); color:var(--ink)}
+a{text-underline-offset:3px}
+.meta, .eq .tag, td.num, .teach-timeline-date{font-variant-numeric:tabular-nums}
+
+/* ── 页头 ───────────────────────────────────────────── */
+header.course{border-bottom:2px solid var(--ink); padding-bottom:1.6rem; margin-bottom:2.2rem}
+.eyebrow{font-family:var(--mono); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin:0 0 .9rem}
+h1{font-size:2.05rem; line-height:1.35; margin:0 0 .8rem; letter-spacing:.01em; font-weight:600}
+.lede{font-size:1.06rem; color:var(--ink-soft); margin:0 0 1rem; line-height:1.85}
+.meta{font-family:var(--mono); font-size:.76rem; color:var(--ink-soft); letter-spacing:.04em; margin:0}
+.meta span+span::before{content:" · "; color:var(--rule)}
+
+/* ── 本课路线 ───────────────────────────────────────── */
+nav.toc{background:var(--paper-2); border:1px solid var(--rule); padding:1.1rem 1.4rem; margin:0 0 3rem; font-size:.94rem}
+nav.toc p{font-family:var(--mono); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; margin:0 0 .5rem; color:var(--ink-soft)}
+nav.toc ol{margin:0; padding-left:1.3rem}
+nav.toc a{color:var(--ink); text-decoration:none; border-bottom:1px solid transparent}
+nav.toc a:hover{border-bottom-color:var(--accent)}
+
+/* ── 侧边目录（宽屏常驻，窄屏自动换成正文里的 nav.toc） ── */
+.shell{display:grid; grid-template-columns:var(--sidebar) minmax(0,var(--measure)); gap:var(--gutter); max-width:calc(var(--sidebar) + var(--gutter) + var(--measure)); margin:0 auto; padding:0 1.4rem}
+.shell .wrap{max-width:none; margin:0; padding:4.5rem 0 6rem}
+.sidenav{position:sticky; top:0; align-self:start; max-height:100vh; overflow-y:auto; padding:4.6rem 0 2rem; border-right:1px solid var(--rule)}
+.sidenav .label{font-family:var(--mono); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 .7rem}
+.sidenav ol{list-style:none; margin:0; padding:0; font-size:.85rem; line-height:1.45}
+.sidenav li{margin:0 0 .1rem}
+.sidenav a{display:block; padding:.3rem .55rem .3rem .6rem; margin-left:-1px; color:var(--ink-soft); text-decoration:none; border-left:2px solid transparent; border-bottom:0}
+.sidenav a:hover{color:var(--ink); background:var(--paper-2)}
+.sidenav a.is-current{color:var(--accent-2); border-left-color:var(--accent); background:var(--accent-soft); font-weight:600}
+.sidenav .back{margin:1.3rem 0 0; font-family:var(--mono); font-size:.74rem; line-height:1.6}
+.sidenav .back a{border-bottom:1px solid rgba(156,53,36,.35); padding:0; display:inline}
+section{scroll-margin-top:2.5rem}
+@media (max-width:1040px){
+  .shell{display:block; padding:0}
+  .shell .wrap{max-width:var(--measure); margin:0 auto; padding:4.5rem 1.4rem 6rem}
+  .sidenav{display:none}
+}
+@media (min-width:1041px){
+  nav.toc{display:none}
+}
+
+/* ── 正文结构 ───────────────────────────────────────── */
+section{margin:0 0 3.6rem}
+h2{font-size:1.3rem; margin:0 0 1.1rem; padding-bottom:.45rem; border-bottom:1px solid var(--rule); font-weight:600; letter-spacing:.01em}
+h2 .num{font-family:var(--mono); font-size:.8rem; color:var(--accent); margin-right:.7rem; letter-spacing:.06em}
+h3{font-size:1.02rem; margin:2.1rem 0 .6rem; font-weight:600}
+p{margin:0 0 1.15rem}
+ul,ol{margin:0 0 1.15rem; padding-left:1.5rem}
+li{margin:.35rem 0}
+strong{font-weight:600}
+a{color:var(--accent-2); text-decoration:none; border-bottom:1px solid rgba(156,53,36,.35)}
+a:hover{border-bottom-color:var(--accent)}
+hr{border:0; border-top:1px solid var(--rule); margin:2.6rem 0}
+code{font-family:var(--mono); font-size:.86em; background:var(--paper-2); padding:.1em .35em; border-radius:2px}
+pre{background:var(--paper-2); border:1px solid var(--rule); padding:1rem 1.2rem; overflow-x:auto; font-family:var(--mono); font-size:.86rem; line-height:1.7; margin:1.4rem 0}
+pre code{background:none; padding:0}
+
+/* ── 公式：LaTeX 排版（不要往这里塞纯文本） ─────────────
+   独立公式：<div class="eq">$$\frac{a}{b}$$</div>
+   行内公式：正文里直接写 $x_{i}$
+   编号靠 .eq > .tag，别手写括号 */
+.eq{margin:1.6rem 0; padding:1rem 0; text-align:center; overflow-x:auto}
+.eq .tag{display:block; font-family:var(--mono); font-size:.7rem; color:var(--ink-soft); letter-spacing:.08em; margin-top:.4rem}
+mjx-container[jax="SVG"]{color:var(--ink)}
+mjx-container[jax="SVG"][display="true"]{margin:0 !important}
+
+/* 计算机器里的位串、指令、伪代码用 .formula（等宽，不是数学） */
+.formula{margin:1.5rem 0; padding:1.1rem 1.4rem; background:#fff; border-left:3px solid var(--accent); font-family:var(--mono); font-size:.92rem; line-height:2; overflow-x:auto}
+.formula .eq{display:block; white-space:nowrap; text-align:left}
+.formula .note{display:block; font-family:var(--serif); font-size:.85rem; color:var(--ink-soft); margin-top:.5rem; line-height:1.7}
+
+/* ── 提示块 ─────────────────────────────────────────── */
+.callout{background:var(--accent-soft); border-left:3px solid var(--accent); padding:1rem 1.3rem; margin:1.6rem 0; font-size:.96rem}
+.callout p:last-child{margin-bottom:0}
+.callout .tag,.plain .tag{font-family:var(--mono); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; display:block; margin-bottom:.4rem}
+.callout .tag{color:var(--accent)}
+.plain{background:var(--paper-2); border:1px solid var(--rule); padding:1rem 1.3rem; margin:1.6rem 0; font-size:.96rem}
+.plain .tag{color:var(--ink-soft)}
+.plain p:last-child{margin-bottom:0}
+
+/* ── 表格 ───────────────────────────────────────────── */
+table{width:100%; border-collapse:collapse; margin:1.4rem 0; font-size:.92rem}
+th,td{text-align:left; padding:.55rem .6rem; border-bottom:1px solid var(--rule); vertical-align:top}
+th{font-family:var(--mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); border-bottom:1.5px solid var(--ink)}
+td.num,th.num{font-family:var(--mono); font-size:.86rem; white-space:nowrap}
+tbody tr:last-child td{border-bottom:1.5px solid var(--ink)}
+
+/* ── 复制为 Markdown ───────────────────────────────────
+   按钮由 course.js 生成，HTML 里不用写；悬停公式 / 表格才出现，打印时隐藏。
+   公式输出 $$…$$，表格输出 GFM 管道表（表头、对齐、单元格里的行内公式都还原） */
+.md-copy-host{position:relative}
+.md-copy{
+  position:absolute; right:0; top:-1.35rem; z-index:3;
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase;
+  line-height:1; padding:.32rem .45rem; color:var(--ink-soft); background:var(--paper);
+  border:1px solid var(--rule); cursor:pointer; opacity:0;
+  transition:opacity .12s ease, color .12s ease, border-color .12s ease;
+  -webkit-user-select:none; user-select:none;
+}
+.md-copy-host.eq-host>.md-copy{top:.05rem}
+.md-copy-host:hover>.md-copy,.md-copy:focus-visible{opacity:1}
+.md-copy:hover{color:var(--accent-2); border-color:var(--accent)}
+@media (hover:none){.md-copy{opacity:.6}}
+/* 复制回执：底部一条，1.8 秒后自己消失 */
+.md-toast{
+  position:fixed; left:50%; bottom:1.6rem; z-index:50;
+  transform:translate(-50%,.8rem); opacity:0; pointer-events:none;
+  font-family:var(--mono); font-size:.74rem; letter-spacing:.06em; line-height:1;
+  padding:.62rem .9rem; background:var(--ink); color:var(--paper); border:1px solid var(--ink);
+  transition:opacity .16s ease, transform .16s ease;
+}
+.md-toast.is-on{opacity:1; transform:translate(-50%,0)}
+.md-toast.is-bad{background:var(--bad); border-color:var(--bad); color:var(--paper)}
+/* 兜底：剪贴板完全不可用时把源码摊开并选中，手动 ⌘C 也能拿走 */
+.md-src{
+  position:fixed; left:50%; bottom:4rem; z-index:60;
+  width:calc(100vw - 3rem); max-width:42rem; max-height:46vh; overflow:auto;
+  transform:translateX(-50%); padding:.9rem 1rem .7rem;
+  background:var(--paper); border:1px solid var(--ink); box-shadow:0 6px 24px rgba(0,0,0,.18);
+}
+.md-src pre{
+  margin:0 0 .6rem; font-family:var(--mono); font-size:.7rem; line-height:1.7;
+  white-space:pre-wrap; word-break:break-word;
+}
+.md-src-close{
+  font-family:var(--mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.3rem .5rem; color:var(--ink-soft); background:none; border:1px solid var(--rule); cursor:pointer;
+}
+.md-src-close:hover{color:var(--accent-2); border-color:var(--accent)}
+
+/* ── 通用块 ─────────────────────────────────────────── */
+.steps{counter-reset:s; list-style:none; padding:0}
+.steps>li{counter-increment:s; position:relative; padding-left:2.4rem; margin:.9rem 0}
+.steps>li::before{content:counter(s); position:absolute; left:0; top:.15rem; font-family:var(--mono); font-size:.75rem; color:var(--paper); background:var(--ink); width:1.5rem; height:1.5rem; line-height:1.5rem; text-align:center; border-radius:50%}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:1.2rem}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.card{border:1px solid var(--rule); padding:1rem 1.2rem; background:#fff}
+.card p:last-child{margin-bottom:0}
+
+/* 正文图片：保留原比例，不超出阅读区。 */
+section figure{margin:2rem 0}
+section figure>img{display:block; max-width:100%; height:auto}
+section figure>figcaption{color:var(--ink-soft); font-size:.85rem; line-height:1.7; margin-top:.7rem}
+
+/* ── 视频：教学动画 ─────────────────────────────────── */
+figure.video{margin:2rem 0; padding:0}
+figure.video video{width:100%; height:auto; display:block; background:#101216; border:1px solid var(--rule)}
+figure.video figcaption{font-family:var(--mono); font-size:.76rem; color:var(--ink-soft); line-height:1.7; margin-top:.7rem}
+figure.video figcaption .watch{display:block; color:var(--ink); font-family:var(--serif); font-size:.9rem; margin-bottom:.35rem}
+.source{display:block; font-family:var(--mono); font-size:.7rem; color:var(--ink-soft); letter-spacing:.03em; margin-top:.35rem; word-break:break-all}
+
+/* ── 学习目标 / 课末验收 ─────────────────────────────── */
+.goals{margin:1.4rem 0 2rem; padding:1rem 1.3rem 1rem 1.3rem; border-left:3px solid var(--accent); background:var(--accent-soft)}
+.goals::before{content:"学完你能做到"; display:block; font-family:var(--mono); font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); margin-bottom:.55rem}
+.goals ol{margin:0; padding-left:1.25rem}
+.goals li{margin:.35rem 0; font-size:.97rem}
+.check{margin:1.4rem 0 0; padding-top:1rem; border-top:1px solid var(--rule)}
+.check>p{font-family:var(--mono); font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 .6rem}
+.check details{border-bottom:1px solid var(--rule); padding:.5rem 0}
+.check summary{cursor:pointer; font-size:.97rem}
+.check details p{margin:.6rem 0 0; font-size:.92rem; color:var(--ink-soft)}
+
+/* ── 自测题：选项等长、正确项位置轮换 ─────────────────── */
+.quiz{margin:1.6rem 0; padding:1.1rem 1.3rem; border:1px solid var(--rule); background:#fff}
+.quiz .q{font-size:.97rem; margin:0 0 .7rem}
+.quiz .q .tag{font-family:var(--mono); font-size:.7rem; color:var(--ink-soft); letter-spacing:.1em; margin-right:.5rem}
+.quiz label{display:block; padding:.35rem 0; font-size:.95rem; cursor:pointer}
+.quiz label input{margin-right:.55rem}
+.quiz button{font-family:var(--mono); font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; background:var(--ink); color:var(--paper); border:0; padding:.5rem .9rem; cursor:pointer; margin-top:.5rem}
+.quiz button:hover{background:var(--accent)}
+/* 作答控件：浏览器默认的 textarea 又窄又不跟主题，开放题会像半成品。 */
+.quiz textarea,
+.quiz input[type=text],
+.quiz input[type=number]{
+  display:block; width:100%; max-width:var(--measure); box-sizing:border-box;
+  margin:.55rem 0 .3rem; padding:.6rem .7rem;
+  font:inherit; font-size:.95rem; line-height:1.7;
+  color:var(--ink); background:var(--paper-2);
+  border:1px solid var(--rule); border-radius:4px; resize:vertical;
+}
+.quiz textarea:focus,
+.quiz input[type=text]:focus,
+.quiz input[type=number]:focus{outline:2px solid var(--accent-soft); border-color:var(--accent)}
+/* 动作行里的按钮不要各自再顶一段外边距：提交与「复制当前状态」要齐平。 */
+.teach-context-actions .teach-context-copy,
+.teach-context-actions button{margin-top:0}
+.verdict{font-size:.9rem; margin-top:.7rem; min-height:1.4em}
+.verdict.ok{color:var(--good)}
+.verdict.no{color:var(--bad)}
+.verdict.is-stale{color:var(--ink-soft)}
+
+/* 手动附带答疑状态：普通课程也可用，不要求加载组件包。 */
+.teach-context-actions{display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin-top:.7rem}
+.teach-context-copy,.quiz .teach-context-copy{
+  font:inherit; font-size:.78rem; line-height:1.4; letter-spacing:0; text-transform:none;
+  min-height:2.25rem; margin:0; padding:.35rem 0; cursor:pointer;
+  background:none; color:var(--ink-soft); border:0; border-bottom:1px solid var(--rule);
+}
+.teach-context-copy:hover,.quiz .teach-context-copy:hover{background:none; color:var(--ink); border-bottom-color:var(--ink-soft)}
+.teach-context-copy:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+.teach-context-status{font-size:.8rem; color:var(--ink-soft); margin:0}
+.teach-classroom-result{font-size:.85rem; color:var(--ink-soft); margin:.6rem 0 0}
+@media(max-width:640px){
+  .teach-context-copy,.quiz .teach-context-copy{min-height:44px}
+  .quiz button{min-height:44px; padding:.6rem 1rem}
+  .quiz label{display:flex; align-items:center; min-height:44px; padding:.35rem 0}
+  .quiz label input{margin-right:.65rem; width:1.15rem; height:1.15rem}
+  .quiz summary{display:flex; align-items:center; min-height:44px}
+  /* 目录收成一条可换行的链接行：首屏不再被 172px 的竖排目录吃掉 */
+  nav.toc{padding:.6rem .8rem; margin:0 0 2.4rem; font-size:.9rem}
+  nav.toc p{display:inline; margin:0 .6rem 0 0; letter-spacing:.1em}
+  nav.toc ol{display:flex; flex-wrap:wrap; align-items:center; gap:0 .5rem; margin:0; padding:0; list-style:none}
+  nav.toc li{margin:0}
+  nav.toc a{display:inline-flex; align-items:center; min-height:44px; padding:0 .4rem; border-bottom:0}
+  nav.toc a:hover{color:var(--accent-2)}
+}
+
+/* ── 页脚 ───────────────────────────────────────────── */
+footer.course{margin-top:4rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:.86rem; color:var(--ink-soft)}
+footer.course a{color:var(--accent-2)}
+
+/* ── 深色 ───────────────────────────────────────────── */
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#15130f; --paper-2:#1e1b16; --ink:#ece7dd; --ink-soft:#b6ac9c;
+    --rule:#3a342b; --accent:#d2643f; --accent-2:#e3906f; --accent-soft:#2a1f19;
+    --good:#7bbf96; --good-soft:#1d2a22; --bad:#e08a72; --bad-soft:#2c1d19;
+  }
+  .formula,.card,.quiz{background:#1b1813}
+  figure.video video{border-color:#3a342b}
+}
+
+/* ── 打印 ───────────────────────────────────────────── */
+@media print{
+  body{background:#fff; font-size:11pt; line-height:1.7}
+  /* 打印时网格必须塌成单列：只隐藏 .sidenav 会把 .wrap 挤进 13.5rem 的轨道 */
+  .shell{display:block; padding:0}
+  .wrap,.shell .wrap{max-width:var(--measure); margin:0 auto; padding:0}
+  h1{font-size:20pt; line-height:1.3}
+  h2{font-size:13pt}
+  h3{font-size:11pt}
+  nav.toc,.sidenav,.quiz button,.md-copy,.md-toast,.md-src,.teach-context-actions,.skip-link{display:none}
+  section{page-break-inside:avoid}
+  a{color:inherit; border-bottom:0}
+}

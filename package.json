@@ -1,0 +1,106 @@
+{
+  "name": "dsh-teach-me",
+  "version": "0.9.0-beta.1",
+  "type": "module",
+  "description": "为 DeepSeek Harness 提供教学预设、交互课程、练习评估与学习档案，可选连接 Remotion 制作教学动画",
+  "icon": "assets/brand/icon-plate.svg",
+  "license": "BSD-3-Clause",
+  "author": "Mieah108",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mieah108/dsh-teach-me.git"
+  },
+  "homepage": "https://github.com/Mieah108/dsh-teach-me#readme",
+  "bugs": {
+    "url": "https://github.com/Mieah108/dsh-teach-me/issues"
+  },
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "dsh": ">=0.2.1-rc.3"
+  },
+  "scripts": {
+    "test": "node --test 'test/**/*.test.js'",
+    "selftest": "node scripts/selftest.mjs",
+    "check:skills": "node scripts/sync-skills.mjs --check",
+    "verify": "node scripts/verify.mjs",
+    "build:components": "node scripts/build-components.mjs",
+    "check:components": "node scripts/build-components.mjs --check",
+    "bump": "node scripts/version.mjs bump",
+    "version": "node scripts/version.mjs",
+    "check:release": "node scripts/check-release.mjs",
+    "export:release": "node scripts/export-release.mjs",
+    "verify:source": "node scripts/verify.mjs --source",
+    "release:notes": "node scripts/release-notes.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": [
+        "./cordis.patch.yml"
+      ]
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  },
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./settings": "./lib/settings.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./templates/*": "./templates/*",
+    "./skills/*": "./skills/*",
+    "./prompt/*": "./prompt/*",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./client": "./client.js"
+  },
+  "files": [
+    "assets",
+    "lib",
+    "prompt",
+    "skills",
+    "templates",
+    "locale",
+    "docs",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "GLOSSARY.md",
+    "INVENTORY.md",
+    "LICENSE",
+    "ATTRIBUTIONS.md",
+    "licenses",
+    "client.js",
+    "scripts/lesson-compile.mjs",
+    "scripts/lesson-lint.mjs",
+    "scripts/lesson-patch.mjs",
+    "scripts/teach-workspace.mjs"
+  ],
+  "keywords": [
+    "dsh",
+    "agent-preset",
+    "teaching",
+    "remotion",
+    "deepseek-harness",
+    "dsh-plugin"
+  ],
+  "dependencies": {
+    "@deepseek-ai/schemastery": "3.18.5",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "echarts": "6.1.0",
+    "esbuild": "0.28.2",
+    "linkedom": "0.18.12",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

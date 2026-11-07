@@ -1,0 +1,50 @@
+# macOS
+.DS_Store
+._*
+
+# 依赖与构建产物
+node_modules/
+*.log
+
+# 本地预览与检查产物
+*.tmp
+
+# 本地自动化产物
+.repro/
+.codex/
+.playwright-cli/
+.impeccable/
+.taste-skill/
+.slim/
+
+# 本地规划草稿，不随包分发
+PRODUCT.md
+
+# 学习工作区与动画工程的本地状态
+.dsh-teach-me/
+.teach/
+_teach-managed/
+
+# 本地配置、凭据与备份（安全示例可跟踪）
+.env
+.env.*
+!.env.example
+!.env.sample
+*.local.json
+*.local.yml
+*.local.yaml
+.npmrc
+.pypirc
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.backup
+artifacts/
+release/
+*.tgz
+*.tar.gz

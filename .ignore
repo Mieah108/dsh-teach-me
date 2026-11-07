@@ -1,0 +1,8 @@
+# 本地状态不参与源码检索。
+.repro/
+.codex/
+.slim/
+.playwright-cli/
+.impeccable/
+.dsh-teach-me/
+.teach/

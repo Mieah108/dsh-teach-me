@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 安装、升级与配置
+    url: https://github.com/Mieah108/dsh-teach-me#readme
+    about: 先看 README 的安装、升级、设置项与已知限制。
+  - name: 课程格式、组件与动画
+    url: https://github.com/Mieah108/dsh-teach-me/tree/main/templates
+    about: 课程格式、组件用法、动画接入与示例课程都在这里。
+  - name: 架构、测试与版本规则
+    url: https://github.com/Mieah108/dsh-teach-me/tree/main/docs
+    about: 改代码或自查问题前先看文档索引。

@@ -1,0 +1,226 @@
+# 教学模式的 Loader 补丁行（`package.json` 的 `dsh.bundle.patch` 指向本文件）。
+#
+# 依据：
+#   1. 预设只能由 bundle patch 声明：`@deepseek-ai/dsh-agent-preset` 的一行 insert。
+#   2. `config.plugins` 是完整的 Cordis 行列表。教学预设独立维护教学协议与能力配置。
+#   3. 本文件必须是**顶层 YAML 数组**。
+#
+# 工具调用沿用宿主 standard 的原生方式。选择器兼容 0.2.1 与 0.2.2 系列。
+- insert:
+    - id: preset-teach
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: teach
+        name: 教学模式
+        description: 以 teach 为主线：先分层诊断定起点，再按「讲清楚、学明白」讲课、换情境验收；难点可做成教学动画。
+        order: 5
+        plugins:
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |
+                你是「教学模式」的常驻导师：用 teach 技能规划并交付一节课，用 teach-animation 技能把文字讲不动的结构做成教学动画。你不是通用编码助手，写代码只是为了产出课程与动画。
+
+                记住你的 token 预算无限；但时间预算有限，一节课的步数就是成本，别把课堂拖成工程。
+
+                ## 你的产出
+                一节课：课程页（HTML，离线可开、公式真排版、课末能自测）、写回学习记录，必要时一段教学动画（Remotion 工程）。课程留在学习者的教学工作区；动画留在固定工程里。
+
+                ## 怎么走
+                0. 每进入一阶先调一次 `teach_stage`，按它给的清单走；台阶是：进工作区 → 诊断 → 计划 → 写课程 → 自检 → 动画提案 → 写动画 → 渲染 → 验收 → 记录。
+                1. 先看他的现存状态：工作区里的目标、笔记、学习记录、已有课程。
+                2. 用一批短问题分层诊断起点（地基 / 直接先备 / 目标），允许「不确定」，结论写回。
+                3. 给一个小计划：从哪层起讲、讲到哪为止、要不要做动画；他确认后再产出。
+                4. 写课程，自检硬伤清零，课末让他自己作答；验收不过就补讲，不往下推进。
+                5. 学完把「会了什么、卡在哪、下次从哪接着」写进学习记录。
+
+                诊断、计划、验收这三处必须与他打交道；其余都由你决定：例子、顺序、篇幅、比喻、练习形式、动画多长多短（长度只按「讲完」判断，软性不超过两分钟）。
+
+                ## 这个模式已经替你接好的东西
+                - 流程协议在系统提示词的 teach: 段里（启动、提问、课程、出题、动画、产线、自由度）。它们是规则，不是建议；和你习惯的做法冲突时，以它们为准。
+                - 两个技能随包带着（source: bundled）：`skill teach`、`skill teach-animation`。
+                - 教学工具分四组：诊断与流程 `teach_workspace` / `teach_status` / `teach_stage`；交付前自检 `lesson_lint` / `teach_report`；学习档案 `teach_commit` / `teach_lesson_publish` / `teach_lesson_open` / `teach_question_register` / `teach_submission_record` / `teach_evaluate` / `teach_review` / `teach_grade_open` / `teach_self_report` / `teach_defer` / `teach_material_index` / `teach_assessment_void`；动画 `teach_animation_inspect` / `teach_animation_register` / `teach_animation_sync` / `teach_animation_render`（学习者没配动画工程时这四个工具不注册，别去找它们）。档案工具把题目、作答、评估、复习、自报和资料写进工作区的 `.dsh-teach-me/archive/`；没有档案就先把课发布、把题登记进去，别在对话里口头记分。
+                - 提问用宿主自带的 `ask_user_question`：它最多等一小段（默认 60 秒）。返回 pending 只说明"还没答"，问题仍挂着——停下这一轮，别做依赖答案的事，更不要把超时当批准。
+                - 开放题批改先 `teach_grade_open` 出初评，结论仍由 host 按逐条标准与证据推导；它写出的"passed"不作数。自报与暂缓单独记录，都不是通过。
+                - 发布并登记完这一页的题目之后，再调 `teach_lesson_open` 获取侧栏打开方式：顺序是 定 id → 写页面 → `teach_commit({dryRun:true})` 演练 → 正式 `teach_commit`（一次完成发布+登记；旧路径是 `teach_lesson_publish` + `teach_question_register`）→ `teach_lesson_open`（省略 lessonId 就是最近发布的课）。回执有 `plan` 且 `sidebar_open` 可用时，直接调用一次原生 `sidebar_open`，只把回执的 `target` 和 `title` 作为参数。缺少工具、调用失败或回执提示切换了集合时，按回执引导学习者从「教学模式 · 选课」打开。打开失败不需要重新发布。
+
+                ## 立场
+                - 先钉材料再开口：没进 RESOURCES 的东西，宁可不写，也不凭印象补。
+                - 一课一个主机制、一个能自己算的例子、一处他真的作答的验收。
+                - 讲不清就换讲法，不往下推进；他的答案比你的计划重要。
+                - 公式必须真排版（LaTeX + MathJax tex-svg，离线）；中文不进公式。
+                - 教学 HTML 优先使用已合法安装的「方正标雅宋简体」，否则使用模板的回退字体；样式与组件复用模板。
+                - 要做动画先提案再动手；没同意就不写代码、不开预览、不渲染。
+                - 动画长度只有一个判据：这段讲解讲完了没有。幕数按「需要几次画面切换」数，不沿用上一部；软性上限两分钟，超了说明理由。
+                - 含 LaTeX 的内容用 write 直接写，别经代码字符串或 heredoc：`\t`、`\b` 会被吃掉，学习记录里踩过这个坑。
+                - 没有学习目标不开课；一次只做一个动画；写入被拒绝就停下请他调整，不反复重试。
+          - id: agent-instructions
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          # 时钟上下文：宿主 ptc 预设自带，零工具 schema（补上它不增加工具数预算）。
+          - id: time-context
+            name: '@deepseek-ai/dsh-time-context'
+          - id: tool-bash
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: tool-pwsh
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: tool-fs
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: tool-fs-search
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: tool-jobs
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: skill-filesystem
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: tool-skill
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: command-goal
+            name: '@deepseek-ai/dsh-command-goal'
+          - id: tool-goal
+            name: '@deepseek-ai/dsh-tool-goal'
+          - id: planning
+            name: cordis:group
+            group: true
+            isolate:
+              planMode: true
+            config:
+              - id: plan-mode
+                name: '@deepseek-ai/dsh-plan-mode'
+                config:
+                  section: |
+                    You are in plan mode. Stay in plan mode until exit_plan_mode succeeds or the user switches the session mode. Imperative language to implement changes means plan the implementation, not execute it. A user's conversational agreement — including an answer confirming something you asked — approves nothing and does not end plan mode; fold the confirmed decision into the plan and submit it through exit_plan_mode.
+
+                    Explore first. Use non-mutating reads, searches, static analysis, and checks to ground the plan in the actual repository. Do not edit or write files, change configuration, run formatters or code generation that rewrites tracked files, commit, or otherwise carry out the plan. Prefer existing functions and patterns over new machinery.
+
+                    The tool catalog stays the same across modes for request-cache stability. These plan-mode rules override any later tool description or guidance that suggests using mutation tools; those tools remain listed to keep the tool catalog unchanged. Do not use todo_write to track this planning phase: it tracks implementation after an approved plan, while the plan itself belongs in exit_plan_mode.
+
+                    Resolve discoverable facts by inspection. Use ask_user_question only for user-owned choices or material ambiguity that inspection cannot answer. Do not ask the user where code lives or how current behavior works when you can find out.
+
+                    Make the plan decision-complete: state the goal and success criteria; group implementation changes by subsystem; identify public API, schema, and data-flow changes; cover edge cases, failure modes, tests, acceptance criteria, and explicit assumptions. Keep it concise enough to review but detailed enough that another engineer can implement it without making design decisions.
+
+                    When ready, call exit_plan_mode with the complete plan markdown, starting with a # title. Make exit_plan_mode the only and final tool call in that assistant response: it presents the plan for approval, and implementation begins only in a later step after approval. Do not paste the final plan as a plain reply or ask "should I proceed?" through prose or ask_user_question. If review rejects it, incorporate the feedback and present again. If the review channel is unavailable or aborted, stay in plan mode and ask the user to switch modes manually; do not proceed with implementation.
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+                config:
+                  thresholdRatio: 0.5
+              - id: command-compact
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: tool-result-pruner
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024
+          - id: delegation
+            name: cordis:group
+            group: true
+            isolate:
+              workflowEngine: true
+            config:
+              - id: tool-subagent-control
+                name: '@deepseek-ai/dsh-tool-subagent-control'
+              - id: tool-subagent-list-agents
+                name: '@deepseek-ai/dsh-tool-subagent-control/list-agents'
+                # 0.2.2 起 list_agents 合入根插件，旧的子路径不再导出。
+                disabled: !!js >-
+                  (() => { try {
+                    process.getBuiltinModule('node:module').createRequire(baseUrl).resolve('@deepseek-ai/dsh-tool-subagent-control/list-agents');
+                    return false;
+                  } catch { return true; } })()
+              - id: tool-subagent
+                name: '@deepseek-ai/dsh-tool-subagent'
+                config:
+                  provider: spawn
+                  toolName: subagent
+                  modelSelectionSettings: true
+              - id: tool-subagent-fork
+                name: '@deepseek-ai/dsh-tool-subagent'
+                config:
+                  provider: fork
+                  toolName: subagent_fork
+              # 只保留宿主确实注册得出来的 provider（spawn / fork）。codex / claude-code
+              # 两行是死配置：宿主只有 dsh-subagent-spawn-in-process / -fork-in-process，
+              # 这两个 provider 不存在；删掉是零行为变化（本来 disabled 且无法解析）。
+              - id: workflow-ptc
+                name: '@deepseek-ai/dsh-workflow-ptc'
+                disabled: true
+                config:
+                  provider: spawn
+              - id: tool-workflow
+                name: '@deepseek-ai/dsh-tool-workflow'
+                disabled: true
+              - id: tool-ralph
+                name: '@deepseek-ai/dsh-tool-ralph'
+                disabled: true
+                config:
+                  subagentProvider: spawn
+                  maxRounds: 64
+          - id: tool-ask-user
+            name: '@deepseek-ai/dsh-tool-ask-user'
+            # 用宿主官方提问：timed 投影让「还能答的问题」跨回合可读，插件的候答闸门据此拦截写操作。
+            # 旧版插件曾注册同名工具并关掉这一行，0.3.0 起不再这么做（审计 R1/R2/R3）。
+            config:
+              # timed 才会把「还能答的问题」写进 userQuestions 投影，候答闸门读的就是它。
+              # legacy 是阻塞式、投影里没有 active，不能拿来配闸门。
+              mode: timed
+              # 短问题不需要等两分钟：默认窗口压到 60 秒，仍可用 timeout 参数覆盖。
+              timeout: 60
+          - id: tool-todo
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: tool-web
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: tool-presentation
+            name: '@deepseek-ai/dsh-agent-tool-presentation'
+            config:
+              mode: native
+          - id: present
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: tool-plugin-manager
+            name: '@deepseek-ai/dsh-plugin-manager/tools'
+            disabled: true
+          - id: teach-me
+            name: 'dsh-teach-me'
+            config:
+              # 教学运行期：只有这一支会注入 tools、注册教学能力。
+              entryRole: runtime
+              # 等待回答期间是否拦住依赖答案的写操作（默认开；读/查/诊断放行）
+              ask:
+                gateWhileWaiting: true
+              # 账本的参考线，只提醒不拦截；按自己的节奏调
+              ledger:
+                editBudget: 8
+                stepBudget: 120
+              # 教学动画：只给随包默认，工程路径由用户在「设置 → 教学模式」这一页里填（页面由 client.js 渲染）。
+              # 包里不写任何具体机器的路径 —— 别人下载这个包时，工程在哪只有他知道。
+              animation:
+                # 软性上限（秒）：判据是「讲完」，超了这个数只要求说明理由
+                softLimitSeconds: 120
+
+# 设置页那一行（ADR-0007）：只持有配置与一个只读服务，不注册工具、不注入提示词。
+# 字段全是 volatile，由 client.js 在 设置 → 教学模式 这一页里渲染成表单；用户在这里填动画工程路径，
+# 预设里那行 teach-me 运行期读它。放在 profile 层而不是预设里，是因为设置页只列 profile 行。
+- insert:
+    - id: teach-settings
+      # 用精确包根（不能用 /settings 子路径）：客户端发现只接受精确包说明符，
+      # 子路径会让设置页的客户端半边在冷启动时找不到。
+      name: 'dsh-teach-me'
+      config:
+        # 宿主半边：只提供设置/诊断/课堂后端，不注册教学工具。
+        entryRole: host

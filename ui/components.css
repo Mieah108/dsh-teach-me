@@ -1,0 +1,44 @@
+/* Local teaching widgets: inherit the existing course.css tokens; no reset or remote fonts. */
+.teach-widget{margin:1.6rem 0;padding:1.15rem 1.3rem;border:1px solid var(--rule);background:var(--paper);min-width:0;font:inherit;color:var(--ink)}
+.teach-widget-heading{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin:0 0 .45rem;font-size:.98rem}
+.teach-widget-heading>span{font-family:var(--mono);font-size:.76rem;font-variant-numeric:tabular-nums;color:var(--ink-soft);white-space:nowrap}
+.teach-widget-instruction{font-size:.86rem;color:var(--ink-soft);margin:0 0 1rem}
+.teach-widget-button{font-family:var(--mono);font-size:.76rem;line-height:1.45;background:var(--paper);color:var(--ink);border:1px solid var(--rule);border-radius:2px;padding:.55rem .8rem;min-height:44px;cursor:pointer}
+.teach-widget-button:hover{color:var(--accent);border-color:var(--accent)}
+.teach-widget .teach-context-copy{font-family:var(--mono);font-size:.72rem;line-height:1.45;background:none;color:var(--ink-soft);border:0;border-bottom:1px solid var(--rule);border-radius:0;padding:.2rem 0;min-height:36px;cursor:pointer}
+.teach-widget .teach-context-copy:hover{color:var(--ink);border-bottom-color:var(--ink-soft)}
+.teach-widget-button:focus-visible,.teach-widget .teach-context-copy:focus-visible,.teach-flash-face:focus-visible,.teach-chart-control input:focus-visible,.teach-chart-data summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.teach-widget-button:disabled{opacity:.4;cursor:default}
+.teach-widget-controls{display:flex;align-items:center;justify-content:space-between;gap:.65rem;margin:1rem 0 0;flex-wrap:wrap}
+.teach-flash-face{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.65rem;width:100%;min-height:10rem;padding:1.3rem 1.4rem;background:var(--paper-2);color:var(--ink);border:1px solid var(--rule);text-align:left;font:inherit;cursor:pointer}
+.teach-flash-face:hover{border-color:var(--accent)}
+.teach-face-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--accent)}
+.teach-face-text{font-size:1.08rem;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+.teach-hint-row{margin:.8rem 0 0}
+.teach-hint{margin:.65rem 0 0;font-size:.9rem;color:var(--ink-soft)}
+.teach-widget-state{font-size:.78rem;line-height:1.65;color:var(--ink-soft);margin:1rem 0 0;overflow-wrap:anywhere}
+/* 状态行是给读屏与复制用的，不再在纸面重复一遍卡面内容 */
+.teach-widget-state.is-live{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.teach-widget .teach-context-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;margin:1rem 0 0}
+.teach-widget .teach-context-status{font-size:.78rem;color:var(--ink-soft)}
+.teach-timeline ol{list-style:none;margin:1.25rem 0 0;padding:0}
+.teach-timeline li{display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:1rem;margin:0;padding:0 0 1.25rem;position:relative}
+.teach-timeline li:not(:last-child)::after{content:"";position:absolute;left:7rem;top:.7rem;bottom:0;border-left:1px solid var(--rule)}
+.teach-timeline li>div{padding-left:1rem;position:relative}
+.teach-timeline li>div::before{content:"";position:absolute;width:6px;height:6px;left:-.65rem;top:.6rem;background:var(--accent);border-radius:50%}
+.teach-timeline-date{font-family:var(--mono);font-size:.73rem;color:var(--ink-soft);font-variant-numeric:tabular-nums;padding-top:.15rem}
+.teach-timeline li p{font-size:.9rem;line-height:1.75;color:var(--ink-soft);margin:.3rem 0 0}
+.teach-chart-plot{height:21rem;width:100%;min-width:0;margin-top:1rem}
+.teach-chart-controls{display:flex;flex-direction:column;gap:.8rem;margin-top:.85rem}
+.teach-chart-control{display:grid;grid-template-columns:minmax(6rem,1fr) minmax(5rem,2fr) 3rem;gap:.8rem;align-items:center;font-size:.85rem}
+.teach-chart-control input{width:100%;accent-color:var(--accent);min-height:30px;margin:0}
+.teach-chart-control output{font-family:var(--mono);font-size:.8rem;text-align:right;font-variant-numeric:tabular-nums}
+.teach-chart-controls>.teach-widget-button{align-self:flex-start}
+.teach-chart-data{margin-top:.6rem;font-size:.85rem}
+.teach-chart-data summary{cursor:pointer;color:var(--ink-soft);padding:.3rem 0}
+.teach-chart-data table{font-size:.8rem;margin:.6rem 0}
+.teach-widget-error{font-size:.9rem;color:var(--ink-soft);margin:0}
+@media(max-width:640px){.teach-widget .teach-context-copy{min-height:44px}}
+@media(max-width:600px){.teach-widget{padding:1rem}.teach-flash-face{padding:1rem;min-height:11rem}.teach-widget-controls{gap:.4rem}.teach-widget-button,.teach-widget .teach-context-copy{padding:.5rem .65rem}.teach-timeline li{grid-template-columns:4.3rem minmax(0,1fr);gap:.7rem}.teach-timeline li:not(:last-child)::after{left:4.5rem}.teach-timeline li>div{padding-left:.7rem}.teach-timeline li>div::before{left:-.65rem}.teach-chart-control{grid-template-columns:1fr 3rem;gap:.4rem}.teach-chart-control>span{grid-column:1/-1}.teach-chart-plot{height:18rem}}
+@media(prefers-reduced-motion:reduce){.teach-widget *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+@media print{.teach-widget-controls,.teach-hint-row,.teach-widget .teach-context-actions,.teach-chart-controls{display:none}.teach-widget{break-inside:avoid}.teach-widget-state{color:inherit}}
