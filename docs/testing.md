@@ -62,7 +62,8 @@ node scripts/check-release.mjs
 
 - `node scripts/probes/learning-host.mjs`：对实际安装的宿主 DomainFacility/JSON 后端做临时数据的保存、重开、会话隔离与非法值验证，并核对公开插槽和控件导出。
 - `node scripts/qa-learning-flow.mjs`：真实 HTTP 路由、沙箱 iframe 与浏览器交互，覆盖原生弹出菜单/嵌套选项、滑块键盘、Escape 焦点返回/外点关闭、会话设置隔离、集合复制/选择、阅读保存/回看、原课堂提交及续读；只使用临时合成数据，不调用模型。
-- `node scripts/qa-host-ui.mjs --only dock,courses,classroom,settings --widths 1440,390 --theme both`：四个承载面的代表性明暗、宽窄与失败状态。
+- `node scripts/qa-host-ui.mjs --only dock,courses,classroom,settings --widths 1440,390 --theme both`：四个承载面的代表性明暗、宽窄与失败状态。其中 `courses/scrolled` 与 `classroom/scrolled` 会滚动内容并断言：选课顶栏吸顶、课堂课程页顶部空白与顶栏等高、iframe 铺满面板；`classroom/wide` 用 `?pane=1100` 模拟拉宽侧栏，检查标题行动作图标与账目/阅读行的宽屏排版。
+- `node scripts/qa-learning-flow.mjs` 额外断言：弹层改偏好后不存在可见的「已保存」；阅读重试图标在待保存时 `data-pending="true"`，点后恢复 `false`。
 - `test/unit/learning-*.test.js`、`teaching-*.test.js`：集合版本隔离、迁移备份、旧证据、进度归并、会话默认快照、请求固定值、弹性核查预算与保守复查。
 
 实测范围、兼容性和未执行的模型调用见 [实施验证记录](reports/2026-11-05-learning-extension-validation.md)。

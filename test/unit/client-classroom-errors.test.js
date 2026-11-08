@@ -23,6 +23,10 @@ const labels = {
   classroomReloaded: '课堂已重新加载',
   classroomFailedNext: '重新打开，或者回选课换一节。',
   classroomNoUrl: '课堂没有给出课程页地址。',
+  readingLabel: '阅读进度',
+  readingUnknown: '暂无阅读记录',
+  readingUnsaved: '尚未保存',
+  readingRetry: '重试保存',
   coursesPick: '选课',
   coursesPickFailed: '打不开选课页签：宿主没有挂侧栏，重启后再试',
   ledgerQuestions: '{count} 题',
@@ -58,8 +62,8 @@ function classroom(callRpc, options = {}) {
   const contentWindow = { postMessage: (message) => messages.push(message) }
   const frame = { contentWindow }
   const value = options.value ?? { lessonId: 'l1', revision: 1, nonce: 'nonce', url: '/lesson', title: '课' }
-  // hook 顺序与 ClassroomTab 一致：5 个 useState（view/notice/frameSeq/busy/ledger），
-  // 然后 4 个 useRef（iframe/nonce/file/alive）。位置敏感，别调换。
+  // hook 顺序与 ClassroomTab 一致：8 个 useState（view/notice/frameSeq/busy/ledger/reloadSeq/reading/readingPending），
+  // 然后 7 个 useRef（iframe/head/nonce/file/alive/pendingReading/fixedClassroom）。位置敏感，别调换。
   const hookKeys = ['view', 'notice', 'frameSeq', 'busy', 'ledger', 'reloadSeq', 'reading', 'readingPending']
   const store = {
     view: options.loading === true ? { status: 'loading' } : { status: 'ready', value },
@@ -70,7 +74,7 @@ function classroom(callRpc, options = {}) {
     reloadSeq: 0, reading: null, readingPending: false
   }
   // 组件只在打开成功时写 nonce；多数用例直接挂「已就绪」，这里预置同一串（等价于刚打开过）。
-  const refs = [{ current: frame }, { current: 'nonce' }, { current: null }, { current: true }, { current: null }, { current: null }]
+  const refs = [{ current: frame }, { current: null }, { current: 'nonce' }, { current: null }, { current: true }, { current: null }, { current: null }]
   let hookIndex = 0
   let refIndex = 0
   let effectIndex = 0
@@ -143,7 +147,7 @@ function classroom(callRpc, options = {}) {
       effects[1]()
       return next
     },
-    refresh: () => keyOf(tree, 'refresh').props.onClick(),
+    refresh: () => keyOf(tree, 'reload').props.onClick(),
     send: (type = 'submit') => listeners.message({ source: frame.contentWindow, data: { source: 'teach-classroom', nonce: 'nonce', type, requestId: 'req1', questionId: 'q1', questionRevision: 2, rawAnswer: 'b' } })
   }
 }
@@ -163,7 +167,25 @@ const keyOf = (tree, key) => {
   return hit
 }
 const iframeOf = (tree) => tree.children.find((node) => node && node.type === 'iframe')
-const liveOf = (tree, role) => tree.children.find((node) => node && node.props && node.props.role === role && node.type === 'span')
+/** ReadingBar 是函数组件，树里只留下它的 props：账目放在 leading 槽里。 */
+const readingBarOf = (tree) => {
+  let hit
+  walk(tree, (node) => {
+    if (hit === undefined && node.props && Object.prototype.hasOwnProperty.call(node.props, 'leading')) hit = node
+  })
+  return hit
+}
+const ledgerOf = (tree) => {
+  const bar = readingBarOf(tree)
+  return bar === undefined ? undefined : bar.props.leading
+}
+const liveOf = (tree, role) => {
+  let hit
+  walk(tree, (node) => {
+    if (hit === undefined && node.type === 'span' && node.props && node.props.role === role) hit = node
+  })
+  return hit
+}
 /** 一棵（子）树的全部可见/可播报文本；账目行这类精确文案用空串拼，不要空格。 */
 const textOf = (node) => {
   const parts = []
@@ -238,9 +260,9 @@ test('刷新状态同时重开课堂与读状态：换 iframe key；账目行更
   assert.notEqual(iframeOf(tree).props.key, before.props.key)
   assert.equal(view.store.view.value.revision, 2)
   // 账目行常驻在头部：一行计数，一句「最近评估」（按 verdictAt 取最新，且只说这是最近一次）
-  const ledger = keyOf(tree, 'ledger')
+  const ledger = ledgerOf(tree)
   assert.ok(ledger !== undefined, '缺常驻账目行')
-  assert.equal(ledger.props.className, 'tsm-ledger')
+  assert.equal(ledger.props.className, 'tsm-ledger tsm-ledger--inline')
   assert.equal(textOf(keyOf(ledger, 'counts')), '4 题 · 已答 3 · 其中待批改 1')
   assert.equal(textOf(keyOf(ledger, 'assessment')), '最近评估：通过 · 01-02')
   assert.doesNotMatch(textOf(ledger), /needs_practice|需练习/)
@@ -265,7 +287,7 @@ test('刷新失败仍显示服务端错误文案，且不凭空造账目行', as
   assert.equal(view.store.notice.tone, 'error')
   assert.match(view.store.notice.text, /无法刷新/)
   // 没读到状态就没有事实可印：账目行整行不画，而不是画一句「尚未作答」。
-  assert.equal(keyOf(view.render(), 'ledger'), undefined)
+  assert.equal(ledgerOf(view.render()), null)
 })
 
 test('失败提示是 error 档：红字 + assertive 活区，成功仍是 polite', async () => {
@@ -296,6 +318,43 @@ test('成功提示走 polite，assertive 那行留空', async () => {
   assert.equal(liveOf(tree, 'alert').children.join(''), '')
 })
 
+test('阅读条右侧常驻重试：没有待保存时置灰，有待保存时可点并重发 retry-reading', () => {
+  const view = classroom(async () => ({ ok: true, value: { verdict: 'passed' } }))
+  const findReading = (tree) => {
+    let hit = null
+    walk(tree, (node) => {
+      if (hit === null && node.props && node.props.action && node.props.action.props && node.props.action.props['data-reading-retry'] === 'true') hit = node
+    })
+    return hit
+  }
+  const first = view.render()
+  const readingBar = findReading(first)
+  assert.ok(readingBar !== null, '阅读条要接收一个常驻重试 action')
+  const retry = readingBar.props.action
+  assert.equal(retry.props.className, 'tsm-readingretry')
+  assert.equal(retry.props['data-reading-retry'], 'true')
+  assert.equal(retry.props['data-pending'], 'false')
+  assert.equal(retry.props.disabled, true)
+  assert.equal(retry.props['aria-label'], '重试保存')
+  // 旧实现是进度条下面的独立按钮；现在 action 只在 ReadingBar 的 props 里，树里没有第二个。
+  assert.equal(keyOf(first, 'reading-retry'), undefined)
+  // 有待保存内容时恢复可点，点击仍走原来的 retry-reading 报文。
+  view.store.readingPending = true
+  const active = findReading(view.render()).props.action
+  assert.equal(active.props.disabled, false)
+  assert.equal(active.props['data-pending'], 'true')
+  active.props.onClick()
+  assert.equal(view.messages.at(-1).source, 'teach-host')
+  assert.equal(view.messages.at(-1).type, 'teach:retry-reading')
+  assert.equal(view.messages.at(-1).nonce, 'nonce')
+  // 进度条下面不再有第二个「重试保存」文字按钮。
+  const quietRetries = []
+  walk(view.render(), (node) => {
+    if (node.props && typeof node.props.className === 'string' && node.props.className.split(' ').includes('tsm-quiet') && textOf(node) === '重试保存') quietRetries.push(node)
+  })
+  assert.deepEqual(quietRetries, [])
+})
+
 test('请求在飞时按钮禁用，连点不会发出第二份请求', async () => {
   const calls = []
   let release
@@ -310,10 +369,12 @@ test('请求在飞时按钮禁用，连点不会发出第二份请求', async ()
   assert.equal(view.store.busy, true)
   // 重渲染后按钮带上 disabled，第二次点击直接返回，不会再排一次请求
   const tree = view.render()
-  const refresh = keyOf(tree, 'refresh')
-  assert.equal(refresh.props.className, 'tsm-btn')
-  assert.equal(refresh.props.disabled, true)
-  keyOf(tree, 'refresh').props.onClick()
+  const reload = keyOf(tree, 'reload')
+  assert.equal(reload.props.className, 'tsm-classaction')
+  assert.equal(reload.props.disabled, true)
+  assert.equal(keyOf(tree, 'export').props.disabled, true)
+  assert.equal(keyOf(tree, 'import').props.disabled, true)
+  keyOf(tree, 'reload').props.onClick()
   assert.deepEqual(calls, ['classroom/open', 'classroom/status'])
   release()
   await flush()
@@ -381,7 +442,7 @@ test('打开时补不上状态：账目行只降级成题量，不编造已答/�
   // open 拿题量，status 是 best-effort 的补读（失败静默）
   assert.deepEqual(calls, ['classroom/open', 'classroom/status'])
   assert.equal(view.store.notice.text, '')
-  const ledger = keyOf(tree, 'ledger')
+  const ledger = ledgerOf(tree)
   assert.ok(ledger !== undefined, '账目行必须常驻，哪怕只有题量')
   // 没读到 status 就是「不知道」：只印题量，不把「一题没答」当成事实说出来。
   assert.equal(textOf(ledger), '4 题')
@@ -415,7 +476,7 @@ test('课程页发来的状态报文与提交各自把账目行更新到最新',
   // 课程页自己发 status：账目行跟着变，且不打扰状态行
   view.send('status')
   await flush()
-  const first = keyOf(view.render(), 'ledger')
+  const first = ledgerOf(view.render())
   assert.equal(textOf(keyOf(first, 'counts')), '3 题 · 已答 2 · 其中待批改 1')
   assert.equal(textOf(keyOf(first, 'assessment')), '最近评估：通过 · 01-05')
   assert.equal(view.store.notice.text, '')
@@ -424,7 +485,7 @@ test('课程页发来的状态报文与提交各自把账目行更新到最新',
   view.send('submit')
   await flush()
   await flush()
-  const second = keyOf(view.render(), 'ledger')
+  const second = ledgerOf(view.render())
   assert.equal(textOf(keyOf(second, 'counts')), '3 题 · 已答 3')
   assert.equal(textOf(keyOf(second, 'assessment')), '最近评估：需练习 · 01-06')
   assert.equal(view.messages.at(-1).type, 'teach:result')

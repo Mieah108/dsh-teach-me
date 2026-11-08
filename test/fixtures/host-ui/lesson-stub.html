@@ -25,6 +25,8 @@
 		line-height: 22px;
 		color: #1f2328;
 		background: #fff;
+		/* bench 要截到「内容从顶栏下面经过」，所以课程页必须能滚动。 */
+		min-height: 220vh;
 	}
 	h1 {
 		margin: 0 0 10px;
@@ -46,5 +48,31 @@
 <p>一段声音可以被拆成许多条正弦波：每条正弦波有自己的频率、振幅和相位，把它们叠起来就回到原来的波形。傅里叶变换做的事，就是把「时间上的波形」翻译成「频率上的成分」。</p>
 <p>在工程里我们拿到的是采样后的离散序列，于是用离散傅里叶变换来近似连续频谱。采样率不够时高频会折叠到低频（混叠），观测长度有限时能量会摊到相邻频点（泄漏），这两件事决定了实验该怎么设计。</p>
 <p class="note">这是一张占位课程页，用来说明课堂侧栏里的 iframe 已经装上了一页真实文档；它不是课程内容本身。</p>
+<p>滚动占位段落 1：这一段用于验证课程页滚动时，内容会从课堂顶栏的模糊层下面经过。</p>
+<p>滚动占位段落 2：顶栏固定在面板上沿，课程页在它下面独立滚动。</p>
+<p>滚动占位段落 3：首屏的第一段不会被顶栏遮住，因为宿主下发了与顶栏等高的顶部空白。</p>
+<p>滚动占位段落 4：继续向下滚动，文字会逐渐进入顶栏的覆盖范围。</p>
+<p>滚动占位段落 5：这一段刻意留在中段，方便截图检查模糊层叠在正文上的效果。</p>
+<p>滚动占位段落 6：顶栏背景使用宿主侧栏令牌，不引入第二套纸色。</p>
+<p>滚动占位段落 7：阅读进度和重试保存都留在顶栏里，不随正文滚动。</p>
+<p>滚动占位段落 8：再往下是更多占位段落，确保滚动条有足够行程。</p>
+<!-- bench 只模拟课堂桥的顶部 inset 这一条：宿主测量顶栏高度后下发，课程页在 body 最前面留空白。 -->
+<script>
+	(function () {
+		window.addEventListener('message', function (event) {
+			var data = event.data;
+			if (!data || data.source !== 'teach-host' || data.type !== 'teach:top-inset') return;
+			var spacer = document.querySelector('[data-teach-host-inset]');
+			if (!spacer) {
+				spacer = document.createElement('div');
+				spacer.setAttribute('data-teach-host-inset', '');
+				spacer.setAttribute('aria-hidden', 'true');
+				spacer.style.cssText = 'display:block;width:100%;height:0;margin:0;padding:0;border:0;background:transparent;pointer-events:none;grid-column:1/-1';
+				document.body.insertBefore(spacer, document.body.firstChild);
+			}
+			spacer.style.height = Math.max(0, Math.round(Number(data.px) || 0)) + 'px';
+		});
+	})();
+</script>
 </body>
 </html>

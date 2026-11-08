@@ -27,6 +27,8 @@ body {
 	color: var(--dsw-alias-label-primary);
 	font-family: var(--dsw-font-family);
 	-webkit-font-smoothing: antialiased;
+	/* bench 模拟 macOS 原生宿主注入的官方遮罩模糊；生产值由宿主提供。 */
+	--dsw-mask-blur: blur(18px);
 }
 
 /* 页面地面 */

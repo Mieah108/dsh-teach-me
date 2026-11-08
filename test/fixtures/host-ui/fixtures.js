@@ -152,6 +152,8 @@ export const SETTINGS_SNAPSHOTS = {
 const COLLECTIONS = [{ id: "default", name: "信号与系统 · 第一轮", archived: false }, { id: "second", name: "推导复习", archived: false }, { id: "archived", name: "旧学习计划", archived: true }];
 const COLLECTION_BASE = { collectionId: "default", collections: COLLECTIONS };
 const CATALOG_READY = { ok: true, value: { ...COLLECTION_BASE, initialized: true, lessons: CATALOG_LESSONS.map((lesson, index) => ({ ...lesson, reading: index < 3 ? { maxRatio: [1, .8, .4][index] } : null })), openable: true, reading: { percent: 37, count: 6, unrecorded: 3 } } };
+/** 足够长、能滚动的课程清单：验证吸顶顶栏和内容经过模糊层。 */
+const CATALOG_SCROLL = { ok: true, value: { ...CATALOG_READY.value, lessons: Array.from({ length: 24 }, (_, index) => ({ ...CATALOG_LESSONS[index % CATALOG_LESSONS.length], id: "scroll-lesson-" + index, title: "滚动测试课程 " + (index + 1), questionCount: 3 })), reading: { percent: 50, count: 24, unrecorded: 12 } } };
 const CATALOG_NO_ARCHIVE = { ok: true, value: { ...COLLECTION_BASE, initialized: false, lessons: [] } };
 const CATALOG_EMPTY = { ok: true, value: { ...COLLECTION_BASE, initialized: true, lessons: [] } };
 const CATALOG_FAILED = { ok: false, error: { code: "workspace-mismatch" } };
@@ -198,6 +200,8 @@ export const SURFACES = {
 		states: [
 			// 第五课标题来自 fixture 数据：它出现 = 5 行都渲染完了。
 			{ id: "ready", rpc: { "classroom/catalog": CATALOG_READY }, waitFor: { text: "窗函数选型：主瓣、旁瓣与代价" } },
+			// 滚动后截图：验证顶栏吸顶、课程行从模糊层下经过。
+			{ id: "scrolled", rpc: { "classroom/catalog": CATALOG_SCROLL }, interaction: { scroll: "courses" }, waitFor: { text: "滚动测试课程 24" } },
 			{ id: "no-archive", rpc: { "classroom/catalog": CATALOG_NO_ARCHIVE }, waitFor: {} },
 			{ id: "empty", rpc: { "classroom/catalog": CATALOG_EMPTY }, waitFor: {} },
 			{ id: "loading", rpc: { "classroom/catalog": "pending" }, waitFor: {} },
@@ -210,6 +214,10 @@ export const SURFACES = {
 		states: [
 			// 新版打开后会自己读一次 status 填常驻账目行；旧版只在「刷新」时读。两边都给，互不干扰。
 			{ id: "ready", rpc: { "classroom/open": { ok: true, value: CLASSROOM_OPEN }, "classroom/status": { ok: true, value: CLASSROOM_STATUS } }, waitFor: { selector: "#qa-root iframe", frame: "lesson-stub.html" } },
+			// 侧栏被拉宽时也检查顶栏排版（pane 覆盖只在 bench 生效）。
+			{ id: "wide", pane: 1100, rpc: { "classroom/open": { ok: true, value: CLASSROOM_OPEN }, "classroom/status": { ok: true, value: CLASSROOM_STATUS } }, waitFor: { selector: "#qa-root iframe", frame: "lesson-stub.html" } },
+			// 课程页滚动后截图：验证首屏不遮、内容经过顶栏模糊层、inset 跟顶栏等高。
+			{ id: "scrolled", interaction: { scroll: "classroom" }, rpc: { "classroom/open": { ok: true, value: CLASSROOM_OPEN }, "classroom/status": { ok: true, value: CLASSROOM_STATUS } }, waitFor: { selector: "#qa-root iframe", frame: "lesson-stub.html" } },
 			{ id: "refreshed", interaction: { textKey: "classroomRefresh" }, rpc: { "classroom/open": { ok: true, value: CLASSROOM_OPEN }, "classroom/status": { ok: true, value: CLASSROOM_STATUS } }, waitFor: { selector: "#qa-root iframe", frame: "lesson-stub.html" } },
 			{ id: "loading", rpc: { "classroom/open": "pending" }, waitFor: {} },
 			{ id: "failed", rpc: { "classroom/open": { ok: false, error: { code: "lesson-not-found" } } }, waitFor: {} },

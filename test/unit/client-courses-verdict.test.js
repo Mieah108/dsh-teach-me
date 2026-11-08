@@ -263,7 +263,10 @@ test('载入态：三条骨架条 + 一句只给读屏的「正在读课程…�
     assert.equal(skeleton.props.className, 'tsm-skeleton')
     assert.equal(skeleton.props['aria-hidden'], 'true')
   }
-  const loading = view.tree.children.find((node) => node && node.props && node.props.role === 'status')
+  let loading
+  walk(view.tree, (node) => {
+    if (loading === undefined && node.type === 'span' && node.props && node.props.role === 'status') loading = node
+  })
   assert.ok(loading !== undefined, '载入要有可播报的状态')
   assert.equal(textOf(loading), '正在读课程…')
   assert.match(loading.props.className, /(^|\s)tsm-sr(\s|$)/, '这句话只给读屏，不占版面')
@@ -292,6 +295,15 @@ test('顶部只有数量与刷新，不再重复页签名', () => {
   const view = renderCourses({ initialized: true, lessons: [base, { ...base, id: 'l2', title: '第二课' }] })
   const toolbar = keyOf(view.tree, 'bar')
   assert.equal(toolbar.props.className, 'tsm-toolbar')
+  // 顶部条是吸顶层：数量/刷新与提示都在同一个 .tsm-topbar 里，列表在它的滚动区下面。
+  const topbar = keyOf(view.tree, 'topbar')
+  assert.equal(topbar.props.className, 'tsm-topbar')
+  assert.equal(keyOf(topbar, 'bar'), toolbar)
+  assert.ok(classOf(topbar, 'tsm-noticeline') !== undefined, '错误提示要留在吸顶栏里')
+  const scroll = classOf(view.tree, 'tsm-scroll')
+  assert.ok(scroll !== undefined, '缺课程列表滚动容器')
+  assert.equal(keyOf(scroll, 'topbar'), topbar)
+  assert.equal(keyOf(scroll, 'list'), listOf(view.tree))
   assert.equal(textOf(keyOf(view.tree, 'count')), '2 节课')
   const refresh = keyOf(view.tree, 'refresh')
   assert.equal(refresh.type, 'button')

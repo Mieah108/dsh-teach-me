@@ -83,7 +83,9 @@ function buildShell(surface) {
 	} else {
 		const pane = document.createElement("div");
 		pane.className = "qa-sidebar-pane";
-		const paneWidth = paneWidthFor(viewportWidth);
+		// ?pane=1100 让 bench 也能截到「侧栏被拉宽」后的真实排版；默认仍按视口选宽度。
+		const paneOverride = Number(params.get("pane") || 0);
+		const paneWidth = paneOverride > 0 ? Math.min(paneOverride, viewportWidth - 16) : paneWidthFor(viewportWidth);
 		pane.style.width = paneWidth + "px";
 		pane.dataset.qaPaneWidth = String(paneWidth);
 		pane.appendChild(root);

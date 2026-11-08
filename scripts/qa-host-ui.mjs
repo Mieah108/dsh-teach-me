@@ -304,6 +304,46 @@ async function resolveTextKey(page, key) {
 async function runInteraction(page, state) {
 	if (state.interaction === undefined) return 0;
 	const callsBefore = await page.evaluate(() => window.__qa.rpc.calls);
+	if (state.interaction.scroll === "courses") {
+		await page.locator(".tsm-scroll").evaluate((node) => { node.scrollTop = 260; });
+		await page.waitForTimeout(80);
+		const geometry = await page.evaluate(() => {
+			const scroller = document.querySelector(".tsm-scroll");
+			const bar = document.querySelector(".tsm-topbar");
+			if (scroller === null || bar === null) return null;
+			return { scrollTop: scroller.scrollTop, barTop: bar.getBoundingClientRect().top, scrollerTop: scroller.getBoundingClientRect().top };
+		});
+		if (geometry === null) throw new Error("选课滚动检查缺 .tsm-scroll / .tsm-topbar");
+		if (geometry.scrollTop <= 0) throw new Error("选课列表没有可滚动内容，无法验证吸顶");
+		if (Math.abs(geometry.barTop - geometry.scrollerTop) > 1) throw new Error("选课顶栏没有吸顶：barTop=" + geometry.barTop + " scrollerTop=" + geometry.scrollerTop);
+		return callsBefore;
+	}
+	if (state.interaction.scroll === "classroom") {
+		const frame = await waitForLoadedFrame(page, "lesson-stub.html");
+		await frame.waitForFunction(() => (document.querySelector("[data-teach-host-inset]")?.getBoundingClientRect().height || 0) > 0);
+		await frame.evaluate(() => scrollTo(0, Math.min(document.documentElement.scrollHeight - innerHeight, 420)));
+		await page.waitForTimeout(120);
+		const header = await page.evaluate(() => {
+			const bar = document.querySelector(".tsm-classbar");
+			return bar === null ? 0 : bar.getBoundingClientRect().height;
+		});
+		const frameInfo = await frame.evaluate(() => {
+			const spacer = document.querySelector("[data-teach-host-inset]");
+			return { inset: spacer === null ? 0 : parseFloat(getComputedStyle(spacer).height), scrollY: window.scrollY };
+		});
+		if (header <= 0) throw new Error("课堂顶栏没有渲染高度");
+		if (Math.abs(frameInfo.inset - Math.ceil(header)) > 1) throw new Error("课堂顶部空白与顶栏不等高：inset=" + frameInfo.inset + " header=" + header);
+		if (frameInfo.scrollY <= 0) throw new Error("课堂课程页没有滚动，无法验证内容经过顶栏");
+		// 覆盖层不能让 iframe 缩回 replaced element 的 300px 固有宽度：它必须铺满面板减两侧 12px。
+		const frameWidth = await page.evaluate(() => {
+			const frame = document.querySelector(".tsm-frame");
+			const pane = document.querySelector(".qa-sidebar-pane");
+			return frame === null || pane === null ? null : { frame: frame.getBoundingClientRect().width, pane: pane.getBoundingClientRect().width };
+		});
+		if (frameWidth === null) throw new Error("课堂缺 iframe 或侧栏面板");
+		if (Math.abs(frameWidth.frame - (frameWidth.pane - 24)) > 1) throw new Error("课堂 iframe 没有铺满面板：frame=" + frameWidth.frame + " pane=" + frameWidth.pane);
+		return callsBefore;
+	}
 	const label = await resolveTextKey(page, state.interaction.textKey);
 	await page.getByRole("button", { name: label, exact: true }).click();
 	return callsBefore;
@@ -565,7 +605,7 @@ async function main() {
 				for (const surfaceId of options.only) {
 					const surface = SURFACES[surfaceId];
 					for (const state of surface.states) {
-						const url = origin + "/?surface=" + surfaceId + "&state=" + encodeURIComponent(state.id) + "&theme=" + theme + "&width=" + width;
+						const url = origin + "/?surface=" + surfaceId + "&state=" + encodeURIComponent(state.id) + (state.pane ? "&pane=" + state.pane : "") + "&theme=" + theme + "&width=" + width;
 						const label = surfaceId + "/" + state.id + " " + theme + " " + width + "px";
 						const before = pageErrors.length;
 						await page.goto(url, { waitUntil: "load" });
@@ -576,7 +616,8 @@ async function main() {
 						const callsBeforeClick = await runInteraction(page, state);
 						if (state.interaction !== undefined) {
 							// 「刷新」会重开课堂（open）再读一次汇总（status）：至少两次新调用，且都要回来。
-							await waitForRpcSettled(page, state, callsBeforeClick + (state.interaction.rpcCalls ?? 1));
+							// 纯滚动状态没有新 RPC，只等页面标记，不空等一次不存在的调用。
+							if (state.interaction.textKey !== undefined) await waitForRpcSettled(page, state, callsBeforeClick + (state.interaction.rpcCalls ?? 1));
 							await waitForStateMarks(page, state);
 						}
 						await waitQuiet(page);

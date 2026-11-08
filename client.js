@@ -9,6 +9,24 @@ window.__ModuleLoader__.load({
 		// 教学偏好、集合管理与阅读条共用宿主令牌。
 		let primitives = {};
 		try { primitives = require("@deepseek-ai/dsh-client-ui-primitives"); } catch {}
+		/**
+		 * 官方遮罩模糊只在提供 --dsw-mask-blur 的宿主上生效；Web 上它是 none。
+		 * 这时退回同一套宿主主题里的官方菜单模糊，顶栏仍有毛玻璃，而不是退化成纯半透明。
+		 * 只读一次计算值；平台与主题在会话内不会换。
+		 */
+		let maskBlurProbe;
+		function officialMaskBlur() {
+			if (maskBlurProbe !== undefined) return maskBlurProbe;
+			try {
+				if (typeof document === "undefined" || typeof getComputedStyle !== "function") return (maskBlurProbe = false);
+				const html = getComputedStyle(document.documentElement).getPropertyValue("--dsw-mask-blur").trim();
+				const body = document.body ? getComputedStyle(document.body).getPropertyValue("--dsw-mask-blur").trim() : "";
+				const value = html || body;
+				return (maskBlurProbe = value !== "" && value !== "none");
+			} catch {
+				return (maskBlurProbe = false);
+			}
+		}
 		const FACT_LEVELS = ["none", "loose", "moderate", "strict"];
 		const DEPTH_LEVELS = ["shallow", "moderate", "deep"];
 		/** 选项与定位、Escape、外点关闭均交给宿主 Menu，不维护第二套弹层。 */
@@ -42,12 +60,17 @@ window.__ModuleLoader__.load({
 				react.createElement("div", { key: "labels", className: "tsm-stops", "aria-hidden": "true" }, labels.map((label, i) => react.createElement("span", { key: i, "data-selected": i === index ? "true" : undefined }, label)))
 			]);
 		}
-		function ReadingBar({ t, reading, pending }) {
+		function ReadingBar({ t, reading, pending, action, leading }) {
 			const percent = Math.round((reading && reading.maxRatio || 0) * 100);
-			return react.createElement("div", { className: "tsm-reading" }, [
+			return react.createElement("div", { className: "tsm-reading" + (leading ? " tsm-reading--with-leading" : "") }, [
 				react.createElement("div", { key: "label", className: "tsm-readinglabel" }, [
-					react.createElement("span", { key: "word" }, reading ? t("readingLabel") : t("readingUnknown")),
-					react.createElement("span", { key: "percent" }, percent + "%" + (pending ? " · " + t("readingUnsaved") : ""))
+					leading ? react.createElement("span", { key: "leading", className: "tsm-readingleading" }, leading) : null,
+					leading ? react.createElement("span", { key: "spacer", className: "tsm-readingspacer", "aria-hidden": "true" }) : null,
+					react.createElement("span", { key: "word", className: "tsm-readingword" }, reading ? t("readingLabel") : t("readingUnknown")),
+					react.createElement("span", { key: "tail", className: "tsm-readingtail" }, [
+						react.createElement("span", { key: "percent", className: "tsm-readingpercent" }, percent + "%" + (pending ? " · " + t("readingUnsaved") : "")),
+						action || null
+					])
 				]),
 				react.createElement("div", { key: "bar", className: "tsm-progress", role: "progressbar", "aria-label": t("readingLabel"), "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": percent }, react.createElement("span", { style: { width: percent + "%" } }))
 			]);
@@ -174,7 +197,8 @@ window.__ModuleLoader__.load({
 				react.createElement("p", { key: "hint", className: "tsm-note" }, t("teachingSessionHint")),
 				value ? react.createElement(CollectionControls, { key: "collections", t, sessionId, callRpc, value, compact: true, onChanged: () => setTick((n) => n + 1) }) : null,
 				value ? ["factCheck", "depth"].map((field) => react.createElement(LevelSlider, { key: field, t, field, value: value[field], disabled: busy, onChange: (next) => change(field, next) })) : null,
-				react.createElement("p", { key: "notice", role: "status", className: "tsm-note" }, value ? notice : t("loading")),
+				// 成功/正在保存只给读屏：弹层最后一行不再出现「已保存」；失败仍走下面的可见 alert。
+				react.createElement("span", { key: "notice", role: "status", "aria-live": "polite", className: "tsm-sr" }, value ? notice : t("loading")),
 				error ? react.createElement("div", { key: "error", role: "alert" }, [react.createElement("p", { key: "text", className: "tsm-noticeline--error" }, error), react.createElement("button", { key: "retry", type: "button", className: "tsm-quiet", onClick: () => setTick((n) => n + 1) }, t("coursesRetry"))]) : null
 			]);
 			const Menu = primitives.Menu;
@@ -647,6 +671,20 @@ window.__ModuleLoader__.load({
 .tsm-noticeline--error{color:var(--dsw-alias-label-error,var(--dsw-alias-state-error-primary))}
 .tsm-rule{flex:0 0 auto;height:0;border-top:.5px solid var(--dsw-alias-border-l2)}
 .tsm-list{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow-y:auto;margin:0 -12px;border-top:.5px solid var(--dsw-alias-border-l2)}
+/* 阅读条上的重试：常驻在标签行右侧，出现/消失不改变阅读条高度。 */
+.tsm-surface .tsm-reading--with-leading{padding:2px 0 0}
+.tsm-reading--with-leading .tsm-readinglabel{gap:8px}
+.tsm-readingleading{display:block;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tsm-readingspacer{flex:1 1 auto}
+.tsm-reading--with-leading .tsm-readingword{flex:0 0 auto}
+.tsm-readingword{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tsm-readingtail{display:inline-flex;align-items:center;gap:4px;min-width:0;white-space:nowrap}
+.tsm-readingretry{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:24px;height:24px;margin:-4px -4px -4px 0;padding:0;border:0;border-radius:var(--dsw-radius-xs,4px);background:none;color:var(--dsw-alias-label-secondary);cursor:pointer;transition:background-color 120ms ease-out,color 120ms ease-out}
+.tsm-readingretry::after{content:"";position:absolute;left:50%;top:50%;width:2px;height:2px;margin:-1px 0 0 -1px;border-radius:50%;background:currentColor}
+.tsm-readingretry:hover:not(:disabled){color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06))}
+.tsm-readingretry:disabled{cursor:default;opacity:.45}
+.tsm-readingretry[data-pending=true]{opacity:1;color:var(--dsw-alias-label-primary)}
+.tsm-readingretryglyph{font-size:14px;line-height:1}
 .tsm-lesson{display:flex;flex-direction:column;gap:2px;width:100%;padding:10px 12px;font-family:inherit;font-size:var(--tsm-13);line-height:var(--tsm-13-lh);text-align:start;color:var(--dsw-alias-label-primary);background:none;border:0;border-bottom:.5px solid var(--dsw-alias-border-l2);border-radius:0;cursor:pointer}
 .tsm-lesson:last-child{border-bottom:0}
 .tsm-lesson:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06))}
@@ -687,6 +725,17 @@ window.__ModuleLoader__.load({
 .tsm-ledgerline{display:block}
 /* 结论单独一句：它只是最近一次评估，不是整课结论（U02）。 */
 .tsm-ledgerassessment{display:block;color:var(--dsw-alias-label-secondary)}
+/* 紧凑顶栏：账目收进阅读条左侧，只占一行；长内容省略，完整文本留在 title。 */
+.tsm-ledger--inline{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--tsm-12);line-height:var(--tsm-12-lh);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}
+.tsm-ledger--inline .tsm-ledgerassessment{display:inline;color:inherit}
+.tsm-ledgersep{color:var(--dsw-alias-label-secondary)}
+.tsm-backrow--title{align-items:center;gap:8px}
+.tsm-classactions{flex:0 0 auto;display:flex;align-items:center;gap:2px;margin-left:2px}
+.tsm-classaction{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-xs,4px);background:none;color:var(--dsw-alias-label-secondary);cursor:pointer;transition:background-color 120ms ease-out,color 120ms ease-out}
+.tsm-classaction:hover:not(:disabled){color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06))}
+.tsm-classaction:disabled{color:var(--dsw-alias-label-secondary);cursor:default;opacity:.55}
+.tsm-classaction--import svg{transform:rotate(180deg)}
+.tsm-classactionglyph{font-size:14px;line-height:1}
 .tsm-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0 0 10px}
 .tsm-btn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:3px 12px;font-family:inherit;font-size:var(--tsm-12);line-height:var(--tsm-12-lh);font-weight:500;color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm,8px);cursor:pointer;white-space:nowrap;transition:background-color 120ms ease-out}
 .tsm-btn:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06))}
@@ -697,6 +746,32 @@ window.__ModuleLoader__.load({
 .tsm-btn:disabled{border-color:var(--dsw-alias-border-l2);background:transparent}
 .tsm-quiet:disabled{background:none}
 .tsm-frame{flex:1 1 auto;width:100%;min-height:140px;border:0;background:var(--dsw-alias-bg-base)}
+
+/* ——选课：吸顶顶栏。集合选择留在滚动区外，列表从顶栏下面经过。 —— */
+.tsm-pane--courses{padding:0;overflow:hidden}
+.tsm-pane--courses > .tsm-collections{flex:0 0 auto;margin:0 12px;padding:12px 0}
+.tsm-pane--courses .tsm-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding:0 12px 12px;overscroll-behavior:contain}
+.tsm-pane--courses .tsm-topbar{position:sticky;top:0;z-index:2;margin:0 -12px;padding:8px 12px 0;border-bottom:.5px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-base);background:color-mix(in srgb,var(--dsw-specific-sidebar-fill,var(--dsw-alias-bg-base)) 72%,transparent);-webkit-backdrop-filter:var(--dsw-mask-blur);backdrop-filter:var(--dsw-mask-blur)}
+.tsm-pane--courses .tsm-toolbar{min-height:24px;padding:0 0 8px}
+.tsm-pane--courses .tsm-noticeline{padding-bottom:8px}
+.tsm-pane--courses .tsm-list{flex:none;min-height:0;overflow:visible;border-top:0}
+
+/* ——课堂：顶栏覆盖在 iframe 上，课程页从顶栏下面经过。 —— */
+.tsm-pane--classroom{position:relative;padding:0;gap:0;overflow:hidden}
+.tsm-pane--classroom .tsm-classbar{position:absolute;inset:0 0 auto;z-index:2;display:flex;flex-direction:column;gap:0;max-height:calc(100% - 120px);overflow-y:auto;overscroll-behavior:contain;padding:12px 12px 0;background:var(--dsw-alias-bg-base);background:color-mix(in srgb,var(--dsw-specific-sidebar-fill,var(--dsw-alias-bg-base)) 72%,transparent);-webkit-backdrop-filter:var(--dsw-mask-blur);backdrop-filter:var(--dsw-mask-blur)}
+.tsm-pane--classroom .tsm-classhead{padding-bottom:2px}
+.tsm-pane--classroom .tsm-classbar .tsm-manage summary{padding:2px 0;font-size:var(--tsm-12);line-height:var(--tsm-12-lh)}
+.tsm-pane--classroom .tsm-frame{position:absolute;inset:0 12px;width:calc(100% - 24px);height:100%;min-height:0;flex:none}
+
+/* 宿主没有提供官方遮罩模糊（--dsw-mask-blur:none，常见于 Web）时，
+   退回同一套主题里的官方菜单模糊；两个令牌都来自宿主，不硬编码 blur 值。 */
+.tsm-surface[data-tsm-mask=off] .tsm-topbar,
+.tsm-surface[data-tsm-mask=off] .tsm-classbar{-webkit-backdrop-filter:var(--dsw-menu-backdrop-filter);backdrop-filter:var(--dsw-menu-backdrop-filter)}
+
+/* 系统要求减少透明时，顶栏改回不透明底色，保证文字对比度。 */
+@media (prefers-reduced-transparency: reduce){
+  .tsm-surface[data-tsm-mask] .tsm-topbar,.tsm-surface[data-tsm-mask] .tsm-classbar{background:var(--dsw-specific-sidebar-fill,var(--dsw-alias-bg-base));-webkit-backdrop-filter:none;backdrop-filter:none}
+}
 
 /* 窄面板：标签行与行内结论折行，不靠省略号硬截 */
 @container (max-width:300px){
@@ -710,9 +785,11 @@ window.__ModuleLoader__.load({
   .tsm-lesson{padding:12px}
   .tsm-switchrow{min-height:44px}
   .tsm-check{width:20px;height:20px}
+  .tsm-classaction{width:44px;height:44px}
+  .tsm-readingretry{width:32px;height:32px}
 }
 @media (prefers-reduced-motion:reduce){
-  .tsm-control,.tsm-btn{transition:none}
+  .tsm-control,.tsm-btn,.tsm-readingretry,.tsm-classaction{transition:none}
 }
 
 /* ——首次安装欢迎页—— */
@@ -1461,6 +1538,7 @@ window.__ModuleLoader__.load({
             const [reading, setReading] = react.useState(null);
             const [readingPending, setReadingPending] = react.useState(false);
 			const iframeRef = react.useRef(null);
+			const headRef = react.useRef(null);
 			const nonceRef = react.useRef("");
 			const fileRef = react.useRef(null);
 			const aliveRef = react.useRef(true);
@@ -1473,6 +1551,26 @@ window.__ModuleLoader__.load({
 			};
 			const clearNotice = () => {
 				if (aliveRef.current) setNotice({ tone: "info", text: "" });
+			};
+
+			/**
+			 * 顶栏覆盖在 iframe 上时，把顶栏高度作为课程页顶部空白下发。
+			 * 课程页在 sandbox 里独立滚动，宿主不能直接给它加 padding；走现有的 nonce 桥，
+			 * 让课程页在 body 最前面插一段透明空白，首屏内容就从顶栏下沿开始，下滑时再从模糊层下经过。
+			 */
+			const postTopInset = () => {
+				const bar = headRef.current;
+				const frame = iframeRef.current;
+				if (bar === null || frame === null || !frame.contentWindow) return;
+				const px = Math.ceil(bar.getBoundingClientRect().height);
+				if (px <= 0) return;
+				frame.contentWindow.postMessage({ source: "teach-host", type: "teach:top-inset", nonce: nonceRef.current, px: px }, "*");
+			};
+
+			/** 重试保存是阅读条上的常驻图标：没有待保存内容时禁用，不靠出现/消失来提示。 */
+			const retryReading = () => {
+				const frame = iframeRef.current;
+				if (frame && frame.contentWindow) frame.contentWindow.postMessage({ source: "teach-host", type: "teach:retry-reading", nonce: nonceRef.current }, "*");
 			};
 
 			/** 失败或缺地址时再开一次：同一条 classroom/open，不另造入口（U06）。 */
@@ -1530,7 +1628,7 @@ window.__ModuleLoader__.load({
 					const data = event.data;
 					if (data === null || typeof data !== "object" || data.source !== "teach-classroom") return;
 					if (typeof data.nonce !== "string" || data.nonce !== nonceRef.current) return;
-					if (data.type === "ready") { presence(); return; }
+					if (data.type === "ready") { presence(); postTopInset(); return; }
                     if (data.type === "reading-preview" && data.lessonId === view.value.lessonId && data.revision === view.value.revision && Number.isFinite(data.ratio)) {
                         setReading((prior) => ({ ...prior, maxRatio: Math.max(prior?.maxRatio || 0, Math.min(1, Math.max(0, data.ratio))), position: data.position }));
                         return;
@@ -1576,6 +1674,25 @@ window.__ModuleLoader__.load({
 				aliveRef.current = true;
 				return () => { aliveRef.current = false; };
 			}, []);
+
+			// 顶栏是覆盖层：测量它的真实高度，下发给课程页做顶部空白。
+			// 账目异步出现、动作换行、事实核查展开都会改变高度，ResizeObserver 负责跟上。
+			react.useEffect(() => {
+				if (view.status !== "ready") return undefined;
+				const bar = headRef.current;
+				if (bar === null) return undefined;
+				const send = () => postTopInset();
+				send();
+				const Observer = typeof ResizeObserver === "function" ? ResizeObserver : null;
+				const observer = Observer === null ? null : new Observer(send);
+				if (observer !== null) observer.observe(bar);
+				const onResize = () => send();
+				window.addEventListener("resize", onResize);
+				return () => {
+					if (observer !== null) observer.disconnect();
+					window.removeEventListener("resize", onResize);
+				};
+			}, [view.status, view.value, ledger, notice]);
 
 			const exportOffline = () => {
 				if (busy) return;
@@ -1740,11 +1857,57 @@ window.__ModuleLoader__.load({
 			const ledgerWords = ledgerParts(t, ledger);
 			const ledgerCounts = ledgerWords.counts.join(" · ");
 			const ledgerText = ledgerLine(t, ledger);
-			return react.createElement("div", { className: "tsm-surface tsm-pane" }, [
-				react.createElement("style", { key: "style", dangerouslySetInnerHTML: { __html: SURFACE_CSS } }),
-				// 头两行：先认路（返回选课 + 课程名），再读账目（题量 / 已答 / 待批改 / 结论）。
+			// 阅读条上的常驻重试：没有待保存内容时置灰，但位置一直在，页面不会因为它出现/消失而跳动。
+			const RefreshIcon = primitives.IconRefreshOutlineRegular;
+			const DownloadIcon = primitives.IconDownloadOutlineRegular;
+			const readingAction = react.createElement("button", {
+				key: "reading-retry",
+				type: "button",
+				className: "tsm-readingretry",
+				"data-reading-retry": "true",
+				"data-pending": readingPending ? "true" : "false",
+				"aria-label": t("readingRetry"),
+				title: t("readingRetry"),
+				disabled: !readingPending,
+				onClick: retryReading
+			}, RefreshIcon ? react.createElement(RefreshIcon, { size: 14, "aria-hidden": true }) : react.createElement("span", { className: "tsm-readingretryglyph", "aria-hidden": true }, "↻"));
+
+			// 三个动作收进标题行右侧：图标按钮 + tooltip/aria-label，不再单独占一行。
+			const actionIcon = (Component, glyph) => Component
+				? react.createElement(Component, { size: 16, "aria-hidden": true })
+				: react.createElement("span", { className: "tsm-classactionglyph", "aria-hidden": true }, glyph);
+			const classAction = (key, label, Component, glyph, onClick, extraClass) => react.createElement("button", {
+				key: key,
+				type: "button",
+				className: "tsm-classaction" + (extraClass ? " " + extraClass : ""),
+				"aria-label": label,
+				title: label,
+				disabled: busy,
+				onClick: onClick
+			}, actionIcon(Component, glyph));
+			const actions = react.createElement("div", { key: "actions", className: "tsm-classactions" }, [
+				classAction("reload", t("classroomRefresh"), RefreshIcon, "↻", reloadClassroom),
+				classAction("export", t("classroomExport"), DownloadIcon, "↓", exportOffline),
+				classAction("import", t("classroomImport"), DownloadIcon, "↑", () => { if (fileRef.current) fileRef.current.click(); }, "tsm-classaction--import"),
+				react.createElement("input", { key: "file", ref: fileRef, type: "file", accept: "application/json,.json", style: { display: "none" }, onChange: importProgress })
+			]);
+
+			// 账目收进阅读条左侧，只占一行；完整文本留在 title，长内容省略。
+			const ledgerInline = ledgerText === "" ? null : react.createElement("span", { key: "ledger", className: "tsm-ledger tsm-ledger--inline", title: ledgerText }, [
+				ledgerCounts === "" ? null : react.createElement("span", { key: "counts" }, ledgerCounts),
+				ledgerCounts !== "" && ledgerWords.verdict !== "" ? react.createElement("span", { key: "sep", className: "tsm-ledgersep" }, " · ") : null,
+				ledgerWords.verdict === "" ? null : react.createElement("span", { key: "assessment", className: "tsm-ledgerassessment" }, [
+					t("ledgerAssessment"),
+					react.createElement("span", { key: "word", className: isBadVerdict(ledger.verdict) ? "tsm-verdict tsm-verdict--bad" : "tsm-verdict" }, ledgerWords.verdict),
+					shortDay(ledger.assessedAt) === "" ? null : react.createElement("span", { key: "day", className: "tsm-history" }, " · " + shortDay(ledger.assessedAt))
+				])
+			]);
+
+			// 整个头部是一层覆盖在 iframe 上的模糊顶栏；课程页内部的滚动内容从它下面经过。
+			const classbar = react.createElement("div", { key: "bar", ref: headRef, className: "tsm-classbar" }, [
+				// 标题行：返回 + 课程名 + 动作图标；账目和阅读进度合成下一行。
 				react.createElement("div", { key: "head", className: "tsm-classhead" }, [
-					react.createElement("div", { key: "nav", className: "tsm-backrow" }, [
+					react.createElement("div", { key: "nav", className: "tsm-backrow tsm-backrow--title" }, [
 						// 可见文本带「‹」，读屏只念词：名字给 aria-label，箭头留给眼睛。
 						react.createElement("button", {
 							key: "pick",
@@ -1753,41 +1916,31 @@ window.__ModuleLoader__.load({
 							"aria-label": t("coursesPick"),
 							onClick: () => { if (openCourses() === false) say("error", t("coursesPickFailed")); }
 						}, t("classroomBack")),
-						react.createElement("h3", { key: "title", className: "tsm-lessonname", title: name }, name)
-					]),
-					ledgerText === "" ? null : react.createElement("div", { key: "ledger", className: "tsm-ledger", title: ledgerText }, [
-						ledgerCounts === "" ? null : react.createElement("span", { key: "counts", className: "tsm-ledgerline" }, ledgerCounts),
-						// 结论单独一句：它只是最近一次有效评估，不是整课通过（U02）。
-						ledgerWords.verdict === "" ? null : react.createElement("span", { key: "assessment", className: "tsm-ledgerassessment" }, [
-							t("ledgerAssessment"),
-							react.createElement("span", { key: "word", className: isBadVerdict(ledger.verdict) ? "tsm-verdict tsm-verdict--bad" : "tsm-verdict" }, ledgerWords.verdict),
-							shortDay(ledger.assessedAt) === "" ? null : react.createElement("span", { key: "day", className: "tsm-history" }, " · " + shortDay(ledger.assessedAt))
-						])
+						react.createElement("h3", { key: "title", className: "tsm-lessonname", title: name }, name),
+						actions
 					])
 				]),
-                react.createElement(ReadingBar, { key: "reading", t, reading, pending: readingPending }),
-                readingPending ? react.createElement("button", { key: "reading-retry", className: "tsm-quiet", type: "button", onClick: () => { const frame = iframeRef.current; if (frame?.contentWindow) frame.contentWindow.postMessage({ source: "teach-host", type: "teach:retry-reading", nonce: nonceRef.current }, "*"); } }, t("readingRetry")) : null,
-                view.value.factCheck ? react.createElement(FactCheckDetails, { key: "fact-check", t, report: view.value.factCheck }) : null,
-				// 动作行：重新加载是唯一主钮；导出/导入是不带下划线的次级钮。请求在飞时三个都按住。
-				react.createElement("div", { key: "actions", className: "tsm-actions" }, [
-					react.createElement("button", { key: "refresh", type: "button", className: "tsm-btn", disabled: busy, onClick: reloadClassroom }, t("classroomRefresh")),
-					react.createElement("button", { key: "export", type: "button", className: "tsm-quiet", disabled: busy, onClick: exportOffline }, t("classroomExport")),
-					react.createElement("button", { key: "import", type: "button", className: "tsm-quiet", disabled: busy, onClick: () => fileRef.current && fileRef.current.click() }, t("classroomImport")),
-					react.createElement("input", { key: "file", ref: fileRef, type: "file", accept: "application/json,.json", style: { display: "none" }, onChange: importProgress })
-				]),
+				react.createElement(ReadingBar, { key: "reading", t, reading, pending: readingPending, action: readingAction, leading: ledgerInline }),
+				view.value.factCheck ? react.createElement(FactCheckDetails, { key: "fact-check", t, report: view.value.factCheck }) : null,
 				// 状态行：常量高度占位，不跳高；成功次要色、失败错误色。
 				react.createElement("p", { key: "notice", className: notice.tone === "error" ? "tsm-noticeline tsm-noticeline--error" : "tsm-noticeline" }, notice.text),
 				// 给读屏的两行：成功走 polite、失败走 assertive；任何时刻只有一行有字，不会重复播报。
 				react.createElement("span", { key: "live-polite", role: "status", "aria-live": "polite", className: "tsm-sr" }, notice.tone === "error" ? "" : notice.text),
 				react.createElement("span", { key: "live-alert", role: "alert", "aria-live": "assertive", className: "tsm-sr" }, notice.tone === "error" ? notice.text : ""),
-				react.createElement("hr", { key: "rule", className: "tsm-rule" }),
+				react.createElement("hr", { key: "rule", className: "tsm-rule" })
+			]);
+
+			return react.createElement("div", { className: "tsm-surface tsm-pane tsm-pane--classroom", "data-tsm-mask": officialMaskBlur() ? "on" : "off" }, [
+				react.createElement("style", { key: "style", dangerouslySetInnerHTML: { __html: SURFACE_CSS } }),
+				classbar,
 				react.createElement("iframe", {
 					key: "frame-" + frameSeq,
 					ref: iframeRef,
 					src: view.value.url,
 					title: view.value.title || t("classroomTab"),
 					sandbox: "allow-scripts",
-					className: "tsm-frame"
+					className: "tsm-frame",
+					onLoad: postTopInset
 				})
 			]);
 		}
@@ -1866,14 +2019,17 @@ window.__ModuleLoader__.load({
 				}, t("coursesRefresh"))
 			]);
 
-			const shell = (parts) => react.createElement("div", { className: "tsm-surface tsm-pane" }, [
+			// 顶部条是唯一吸顶层：集合选择固定在它上方，课程列表在下面的滚动区里经过它。
+			const shell = (parts, live) => react.createElement("div", { className: "tsm-surface tsm-pane tsm-pane--courses", "data-tsm-mask": officialMaskBlur() ? "on" : "off" }, [
 				react.createElement("style", { key: "style", dangerouslySetInnerHTML: { __html: SURFACE_CSS } }),
 				react.createElement(CollectionControls, { key: "collections", t, sessionId, callRpc, value: view.value || {}, onChanged: () => setTick((n) => n + 1) }),
-				...parts
+				react.createElement("div", { key: "scroll", className: "tsm-scroll" }, parts),
+				...(live || [])
 			]);
 
 			// 提示紧贴动作行：谁点的、结果是什么，都在同一块里，不用去列表底部找。
 			const noticeLine = react.createElement("p", { key: "notice", className: notice.tone === "error" ? "tsm-noticeline tsm-noticeline--error" : "tsm-noticeline" }, notice.text);
+			const topbar = react.createElement("div", { key: "topbar", className: "tsm-topbar" }, [head, noticeLine]);
 			const livePolite = react.createElement("span", { key: "live-polite", role: "status", "aria-live": "polite", className: "tsm-sr" }, notice.tone === "error" ? "" : notice.text);
 			const liveAlert = react.createElement("span", { key: "live-alert", role: "alert", "aria-live": "assertive", className: "tsm-sr" }, notice.tone === "error" ? notice.text : "");
 			// 载入用真实行高的骨架条：数据落下时列表不跳高，也不用一句「正在读」占位。
@@ -1884,7 +2040,7 @@ window.__ModuleLoader__.load({
 
 			if (view.status === "loading") {
 				return shell([
-					head,
+					topbar,
 					react.createElement("div", { key: "list", className: "tsm-list" }, skeletonRows),
 					react.createElement("span", { key: "loading", role: "status", className: "tsm-sr" }, t("coursesLoading"))
 				]);
@@ -1893,7 +2049,7 @@ window.__ModuleLoader__.load({
 				// 失败态自带动作：重试就在这句话下面，不用回顶部找刷新。
 				// 顶部条与列表线都保留，换状态时版面不跳（对照空态）；assertive 只包文字，不包按钮。
 				return shell([
-					head,
+					topbar,
 					react.createElement("div", { key: "list", className: "tsm-list" }, react.createElement("div", { key: "state", className: "tsm-empty" }, [
 						react.createElement("div", { key: "alert", role: "alert", className: "tsm-emptytext" }, [
 							react.createElement("b", { key: "why" }, t("coursesFailed")),
@@ -1917,7 +2073,7 @@ window.__ModuleLoader__.load({
 				// 空态要说清「发生了什么」和「下一步在哪」：标题一句，下面一句，不用内部工具名（U06）。
 				const archived = view.value !== null && typeof view.value === "object" && view.value.initialized === true;
 				return shell([
-					head,
+					topbar,
 					react.createElement("div", { key: "list", className: "tsm-list" }, react.createElement("div", {
 						key: "empty",
 						className: "tsm-empty",
@@ -2009,12 +2165,9 @@ window.__ModuleLoader__.load({
 			});
 
 			return shell([
-				head,
-				noticeLine,
-				react.createElement("div", { key: "list", className: "tsm-list" }, rows.map((row, index) => !(lessons[index].versions || []).length ? row : react.createElement("div", { key: lessons[index].id }, [row, (lessons[index].versions || []).length > 1 ? react.createElement("details", { key: "versions", className: "tsm-version" }, [react.createElement("summary", { key: "summary" }, t("versionHistory")), ...(lessons[index].versions || []).map((v) => react.createElement("button", { key: v.contentVersion, className: "tsm-quiet", type: "button", onClick: () => openLessonById(lessons[index].id, view.value.collectionId, v.contentVersion) }, t("openVersion") + " · " + v.contentVersion.slice(0, 8)))]) : null]))),
-				livePolite,
-				liveAlert
-			]);
+				topbar,
+				react.createElement("div", { key: "list", className: "tsm-list" }, rows.map((row, index) => !(lessons[index].versions || []).length ? row : react.createElement("div", { key: lessons[index].id }, [row, (lessons[index].versions || []).length > 1 ? react.createElement("details", { key: "versions", className: "tsm-version" }, [react.createElement("summary", { key: "summary" }, t("versionHistory")), ...(lessons[index].versions || []).map((v) => react.createElement("button", { key: v.contentVersion, className: "tsm-quiet", type: "button", onClick: () => openLessonById(lessons[index].id, view.value.collectionId, v.contentVersion) }, t("openVersion") + " · " + v.contentVersion.slice(0, 8)))]) : null])))
+			], [livePolite, liveAlert]);
 		}
 
 		function CoursesTitle({ useTabInfo, t }) {
