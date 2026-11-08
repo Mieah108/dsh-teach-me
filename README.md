@@ -2,9 +2,14 @@
 
 # dsh-teach-me · 教学模式
 
-为 DeepSeek Harness 提供持续学习的 Agent 预设，集成教学技能、交互课程、练习评估和学习档案。你可以从一个学习目标开始，生成可离线阅读的 HTML 课程，在课堂中作答、复习，并在后续会话中继续学习。
+为 DeepSeek Harness 提供辅助学习的 Agent 预设，集成教学技能、交互课程、练习评估和学习档案。你可以从一个学习目标开始，生成可离线阅读的 HTML 课程，在课堂中作答、复习，并在后续会话中继续学习。
 
 需要动态演示时，也可以连接自己的 Remotion 工程制作教学动画。
+
+> [!CAUTION]
+> 当前插件（和预设）仍处于测试阶段，界面、使用逻辑、生成内容都可能有不稳定的问题，在使用中可能出现各种问题。 
+> **AI生成内容可能有误，请务必注意核对。**
+
 
 ## 功能
 
@@ -14,7 +19,6 @@
 - **教学集合**：同一工作区分多轮学习与分类；复制课程清单、归档和恢复，作答与评估各自独立，内容版本固定。
 - **阅读进度**：主课程页显示已浏览进度、保存最近续读位置，选课页汇总课程与集合百分比。阅读不等于掌握。
 - **教学设置**：“教学设置”按钮与对话输入框上方的“教学模式”预设选择器同排，点击弹出菜单；当前会话可调整核查等级和讲解深度，下一次请求生效。设置页可设新会话默认值。
-- **首次安装欢迎页**：装好后第一次打开界面弹一次使用说明（预设在哪选、会话级“教学设置”、设置页与 Remotion 动画怎么开），页面里写明只出现一次；关掉后可在“设置 → 教学模式 → 重新显示欢迎页”再看。
 - **弹性核查**：不核查 0、宽松 1、适中 1–2、严格 3–4 个独立核查者；默认仅课程生成启用，按需交叉复查且最多自动一轮，结果与证据可展开。
 - **学习档案**：在学习工作区保存课程、题目、作答和评估，便于跨会话继续学习。
 - **离线使用**：课程可导出为单文件阅读，支持答案导出与导入；公式和组件资源随包提供。
@@ -26,7 +30,7 @@
 
 - DeepSeek Harness `>=0.2.1-rc.3`。
 - npm 安装使用宿主的 `dsh plugin` 命令，需要 pnpm 位于系统 PATH 中。
-- 动画功能需要单独准备 Remotion 工程及其依赖；默认关闭。
+- 动画功能需要单独准备 Remotion 工程及其依赖；**默认关闭**。
 - 从源码开发需要 Node.js 和 pnpm，pnpm 版本见 [package.json](package.json)。
 
 ## 安装
@@ -51,27 +55,10 @@ cd dsh-teach-me
 pnpm install --frozen-lockfile
 ```
 
-在 DeepSeek Harness 中通过 `plugin_manager` 安装已准备的目录：
-
-```text
-action: install_bundle
-target: /path/to/dsh-teach-me
-```
-
-将 `target` 替换为项目目录的实际绝对路径。
-
-如果使用 `link:` 安装，请保留该目录的位置；移动或删除目录后需要重新安装。
 
 ### 升级
 
-升级前备份学习工作区和教学模式设置。首次明确写入会把现有课程与记录归入默认集合，并备份迁移前档案；降级必须恢复完整迁移前备份，不能仅删除索引。教学集合与阅读记录随教学根移动，会话偏好保存在宿主数据域。普通浏览器直开或离线 HTML 暂不回传阅读位置。安装所需的 npm 版本并重启宿主。使用目录安装时，通过 `plugin_manager` 移除旧包后安装新目录：
-
-```text
-action: remove_bundle
-target: dsh-teach-me
-```
-
-此前安装过本地包 `@local/dsh-teach-me` 时，请先移除该旧包，再安装 `dsh-teach-me`，避免重复注册。保留已有学习工作区和档案。
+升级前备份学习工作区和教学模式设置。首次明确写入会把现有课程与记录归入默认集合，并备份迁移前档案；降级必须恢复完整迁移前备份，不能仅删除索引。教学集合与阅读记录随教学根移动，会话偏好保存在宿主数据域。普通浏览器直开或离线 HTML 暂不回传阅读位置。安装所需的 npm 版本并重启宿主。
 
 自 `0.9.0-beta.1` 起，「教学模式」采用与宿主标准模式相同的原生工具调用。建议等当前调用结束再升级，重启后优先从原会话继续。仍可作答的问题用原卡片回复，卡片无法恢复时可让导师重新提问。若旧会话无法续接，在原学习工作区新开一个「教学模式」会话即可继续使用已有课程和档案。
 
@@ -89,7 +76,7 @@ target: dsh-teach-me
 
 ## 配置
 
-在「设置 → 教学模式」中调整动画选项，修改后重启相应插件或 DeepSeek Harness。
+在 DSH 的「设置 → 教学模式」中调整动画选项。
 
 | 配置项 | 说明 | 默认值 |
 | --- | --- | --- |
@@ -153,6 +140,13 @@ pnpm verify:source
 - 动画渲染依赖本地 Remotion、浏览器和字体环境，平台支持与权限限制见 [架构文档](docs/architecture.md#动画与权限)。
 - 学习档案保存在工作区中，请定期备份课程与学习记录。
 
+## 开发计划
+
+- [ ] 提高教学动画生成稳定性
+- [ ] 课程 HTML 提供更多可选模板
+- [ ] RAG 知识库支持
+- [ ] 插件 UI 设计（设置页和课程选择页等）优化
+
 ## 贡献
 
 欢迎通过 [Issues](https://github.com/Mieah108/dsh-teach-me/issues) 反馈问题或提出建议，也欢迎提交 Pull Request。
@@ -165,7 +159,7 @@ pnpm verify:source
 
 感谢以下上游项目。分发范围、固定版本和许可证见 [ATTRIBUTIONS.md](ATTRIBUTIONS.md)。
 
-- 宿主与教学技能：[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)、[Matt Pocock 的 teach 技能](https://github.com/mattpocock/skills/tree/ad5400b930b297b0c0cb231ff1ffe42a7da666aa/skills/productivity/teach)。
+- 宿主与教学技能：[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)、[Matt Pocock 的 teach 技能](https://github.com/mattpocock/skills)。
 - 课程组件与配方：[DeepTutor](https://github.com/HKUDS/DeepTutor)、[OpenMAIC](https://github.com/THU-MAIC/OpenMAIC)。
 - 前端与公式：[React、ReactDOM 和 scheduler](https://github.com/facebook/react)、[Apache ECharts](https://github.com/apache/echarts)、[zrender](https://github.com/ecomfe/zrender)、[D3.js](https://github.com/d3/d3)、[tslib](https://github.com/microsoft/tslib)、[MathJax](https://github.com/mathjax/MathJax)。
 - 动画、运行与开发依赖：[Remotion](https://github.com/remotion-dev/remotion)、[DeepSeek Schemastery](https://github.com/deepseek-ai/deepseek-harness/tree/main/vendor/schemastery)、[Zod](https://github.com/colinhacks/zod)、[esbuild](https://github.com/evanw/esbuild)、[linkedom](https://github.com/WebReflection/linkedom)。
