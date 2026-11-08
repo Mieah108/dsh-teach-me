@@ -5,7 +5,7 @@ import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 
-export const SOURCE_FILES = ['.gitignore', '.ignore', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'README.md', 'CHANGELOG.md', 'GLOSSARY.md', 'INVENTORY.md', 'ATTRIBUTIONS.md', 'LICENSE', 'client.js', 'cordis.patch.yml']
+export const SOURCE_FILES = ['.gitignore', '.ignore', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'README.md', 'README.en.md', 'CHANGELOG.md', 'GLOSSARY.md', 'INVENTORY.md', 'ATTRIBUTIONS.md', 'LICENSE', 'client.js', 'cordis.patch.yml']
 export const SOURCE_DIRS = ['.github', 'assets', 'lib', 'locale', 'prompt', 'skills', 'templates', 'scripts', 'ui', 'test', 'docs', 'experiments', 'licenses']
 export const RUNTIME_SCRIPTS = ['scripts/lesson-compile.mjs', 'scripts/lesson-lint.mjs', 'scripts/lesson-patch.mjs', 'scripts/teach-workspace.mjs']
 export const RUNTIME_DIRS = ['assets', 'lib', 'locale', 'prompt', 'skills', 'templates', 'docs', 'licenses']

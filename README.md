@@ -2,6 +2,8 @@
 
 # dsh-teach-me · 教学模式
 
+简体中文 · [English](README.en.md)
+
 为 DeepSeek Harness 提供辅助学习的 Agent 预设，集成教学技能、交互课程、练习评估和学习档案。你可以从一个学习目标开始，生成可离线阅读的 HTML 课程，在课堂中作答、复习，并在后续会话中继续学习。
 
 需要动态演示时，也可以连接自己的 Remotion 工程制作教学动画。
@@ -37,7 +39,7 @@
 
 ### 从 npm 安装
 
-当前测试版为 `0.9.1-beta.1`。使用 npm 的 `next` 标签安装最新测试版：
+使用 npm 的 `next` 标签安装最新测试版：
 
 ```bash
 dsh plugin --profile web add dsh-teach-me@next
@@ -146,6 +148,7 @@ pnpm verify:source
 - [ ] 课程 HTML 提供更多可选模板
 - [ ] RAG 知识库支持
 - [ ] 插件 UI 设计（设置页和课程选择页等）优化
+- [ ] 稳定多语言支持
 
 ## 贡献
 
